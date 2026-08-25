@@ -418,23 +418,23 @@ export class Player {
                 gainDb = trackReplayGain || 0;
                 peak = trackPeakAmplitude || 1.0;
             }
-        }
 
-        const preamp = replayGainSettings.getPreamp();
-        let preampMultiplier = 1.0;
-        if (preamp > 10) {
-            preampMultiplier = preamp / 100;
-        } else {
-            gainDb += preamp;
+            // Apply Pre-Amp
+            gainDb += replayGainSettings.getPreamp();
         }
 
         // Convert dB to linear scale: 10^(dB/20)
-        let scale = Math.pow(10, gainDb / 20) * preampMultiplier;
+        let scale = Math.pow(10, gainDb / 20);
+
+        // Peak protection (prevent clipping)
+        if (scale * peak > 1.0) {
+            scale = 1.0 / peak;
+        }
 
         // Apply exponential volume curve if enabled
         const curvedVolume = exponentialVolumeSettings.applyCurve(this.userVolume);
 
-        return Math.max(0, Math.min(5.0, scale * curvedVolume));
+        return Math.max(0, Math.min(1.0, scale * curvedVolume));
     }
 
     applyAudioEffects() {

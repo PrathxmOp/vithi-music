@@ -837,7 +837,7 @@ class AudioContextManager {
      * @param {number} value - Volume level
      */
     setVolume(value) {
-        this.currentVolume = Math.max(0, Math.min(5, value));
+        this.currentVolume = Math.max(0, Math.min(1, value));
         if (this.volumeNode && this.audioContext) {
             const maximum = 1000;
             const minimum = 1 / maximum;
