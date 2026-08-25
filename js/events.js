@@ -1099,9 +1099,11 @@ function initializeSmoothSliders(player) {
     document.addEventListener('mouseup', () => {
         if (isSeeking) {
             const activeEl = player.activeElement;
-            // Commit the seek
-            if (!isNaN(activeEl.duration)) {
-                void player.seekTo(lastSeekPosition * activeEl.duration, { resume: wasPlaying });
+            const duration = (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity)
+                ? activeEl.duration
+                : (player.currentTrack?.duration || 0);
+            if (duration > 0) {
+                void player.seekTo(lastSeekPosition * duration, { resume: wasPlaying });
             }
             isSeeking = false;
             suppressNextSeekClick = true;
@@ -1115,8 +1117,11 @@ function initializeSmoothSliders(player) {
     document.addEventListener('touchend', () => {
         if (isSeeking) {
             const activeEl = player.activeElement;
-            if (!isNaN(activeEl.duration)) {
-                void player.seekTo(lastSeekPosition * activeEl.duration, { resume: wasPlaying });
+            const duration = (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity)
+                ? activeEl.duration
+                : (player.currentTrack?.duration || 0);
+            if (duration > 0) {
+                void player.seekTo(lastSeekPosition * duration, { resume: wasPlaying });
             }
             isSeeking = false;
             suppressNextSeekClick = true;
@@ -1134,15 +1139,15 @@ function initializeSmoothSliders(player) {
         }
         if (!isSeeking) {
             const activeEl = player.activeElement;
-            // Only handle click if not result of a drag release
             seek(progressBar, e, (position) => {
-                if (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity) {
-                    void player.seekTo(position * activeEl.duration);
-                } else if (player.currentTrack && player.currentTrack.duration) {
-                    const targetTime = position * player.currentTrack.duration;
+                const duration = (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity)
+                    ? activeEl.duration
+                    : (player.currentTrack?.duration || 0);
+                if (duration > 0) {
+                    const targetTime = position * duration;
                     const progressFill = document.querySelector('.progress-fill');
                     if (progressFill) progressFill.style.width = `${position * 100}%`;
-                    player.playTrackFromQueue(targetTime);
+                    void player.seekTo(targetTime);
                 }
             });
         }

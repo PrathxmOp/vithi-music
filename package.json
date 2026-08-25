@@ -1,8 +1,8 @@
 {
-    "name": "monochrome",
+    "name": "vithi",
     "type": "module",
     "version": "2.5.1",
-    "description": "[<img src=\"https://github.com/monochrome-music/monochrome/blob/main/assets/512.png?raw=true\" alt=\"Monochrome Logo\">](https://monochrome.tf)",
+    "description": "Vithi - A music streaming web app using JioSaavn API",
     "scripts": {
         "dev": "vite",
         "test": "vitest run --config=vite.config.ts",
@@ -23,7 +23,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/monochrome-music/monochrome.git"
+        "url": "git+https://github.com/PrathxmOp/vithi-music.git"
     },
     "keywords": [
         "music"
@@ -31,9 +31,9 @@
     "author": "",
     "license": "Apache-2.0",
     "bugs": {
-        "url": "https://github.com/monochrome-music/monochrome/issues"
+        "url": "https://github.com/PrathxmOp/vithi-music/issues"
     },
-    "homepage": "https://github.com/monochrome-music/monochrome#readme",
+    "homepage": "https://github.com/PrathxmOp/vithi-music#readme",
     "devDependencies": {
         "@lhci/cli": "^0.14.0",
         "@types/node": "^25.3.5",
@@ -85,6 +85,7 @@
         "jose": "^6.2.0",
         "lucide-static": "^0.577.0",
         "mime": "^4.1.0",
+        "node-forge": "^1.4.0",
         "pocketbase": "^0.26.8",
         "shaka-player": "^5.0.7",
         "simple-icons": "^16.12.0",

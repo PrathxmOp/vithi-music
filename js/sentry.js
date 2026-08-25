@@ -164,28 +164,8 @@ const IGNORE_ERRORS = [
  * Initialize Sentry SDK
  */
 export function initSentry() {
-    if (!analyticsSettings.isEnabled()) {
-        return;
-    }
-
-    Sentry.init({
-        dsn: SENTRY_DSN,
-        release: RELEASE,
-        integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
-        ignoreErrors: IGNORE_ERRORS,
-        beforeSend(event) {
-            if (isInjectionNoise(event)) {
-                return null;
-            }
-            return event;
-        },
-        // Performance Monitoring
-        tracesSampleRate: 1.0,
-        tracePropagationTargets: ['localhost', /^https:\/\/.*\.edideaur\.works/],
-        // Session Replay
-        replaysSessionSampleRate: 0.1,
-        replaysOnErrorSampleRate: 1.0,
-    });
+    // Sentry disabled for Vithi
+    return;
 }
 
 // Auto-initialize Sentry on load

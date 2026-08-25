@@ -230,7 +230,6 @@ export class Player {
                 bufferingGoal: 30,
                 rebufferingGoal: 2,
                 bufferBehind: 30,
-                jumpLargeGaps: true,
             },
             abr: {
                 enabled: true,
@@ -2707,8 +2706,10 @@ export class Player {
     clampSeekTime(time, element = this.activeElement) {
         const requested = Number(time);
         const safeTime = Number.isFinite(requested) ? Math.max(0, requested) : 0;
-        const duration = Number(element?.duration);
-        return Number.isFinite(duration) && duration > 0 ? Math.min(safeTime, duration) : safeTime;
+        const duration = (element && Number.isFinite(element.duration) && element.duration > 0 && element.duration !== Infinity)
+            ? element.duration
+            : (this.currentTrack?.duration || 0);
+        return duration > 0 ? Math.min(safeTime, duration) : safeTime;
     }
 
     waitForSeeked(element, timeoutMs = 650) {

@@ -12,7 +12,45 @@ function proxyAudioPlugin() {
     return {
         name: 'proxy-audio-dev',
         configureServer(server) {
-            // No longer needed: local proxy-audio middleware replaced by remote proxy
+            server.middlewares.use(async (req, res, next) => {
+                if (req.url?.startsWith('/saavn-api/')) {
+                    const targetUrl = 'https://www.jiosaavn.com' + req.url.replace(/^\/saavn-api/, '');
+                    try {
+                        const apiRes = await fetch(targetUrl, {
+                            headers: {
+                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                                'Referer': 'https://www.jiosaavn.com/',
+                            },
+                        });
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                        const body = await apiRes.text();
+                        res.end(body);
+                        return;
+                    } catch (e) {
+                        res.statusCode = 500;
+                        res.end(JSON.stringify({ error: (e as Error).message }));
+                        return;
+                    }
+                }
+                if (req.url?.startsWith('/saavn-audio/')) {
+                    const targetUrl = 'https://aac.saavncdn.com' + req.url.replace(/^\/saavn-audio/, '');
+                    try {
+                        const audioRes = await fetch(targetUrl);
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.setHeader('Access-Control-Allow-Headers', '*');
+                        res.setHeader('Content-Type', 'audio/mp4');
+                        const arrayBuffer = await audioRes.arrayBuffer();
+                        res.end(Buffer.from(arrayBuffer));
+                        return;
+                    } catch (e) {
+                        res.statusCode = 500;
+                        res.end(JSON.stringify({ error: (e as Error).message }));
+                        return;
+                    }
+                }
+                next();
+            });
         },
     };
 }
@@ -64,6 +102,32 @@ export default defineConfig(({ mode }) => {
             exclude: ['pocketbase', '@ffmpeg/ffmpeg', '@ffmpeg/util'],
         },
         server: {
+            proxy: {
+                '/saavn-api': {
+                    target: 'https://www.jiosaavn.com',
+                    changeOrigin: true,
+                    secure: false,
+                    rewrite: (path) => path.replace(/^\/saavn-api/, ''),
+                    configure: (proxy) => {
+                        proxy.on('proxyRes', (proxyRes) => {
+                            proxyRes.headers['access-control-allow-origin'] = '*';
+                            proxyRes.headers['access-control-allow-methods'] = 'GET, HEAD, OPTIONS';
+                        });
+                    },
+                },
+                '/saavn-audio': {
+                    target: 'https://aac.saavncdn.com',
+                    changeOrigin: true,
+                    secure: false,
+                    rewrite: (path) => path.replace(/^\/saavn-audio/, ''),
+                    configure: (proxy) => {
+                        proxy.on('proxyRes', (proxyRes) => {
+                            proxyRes.headers['access-control-allow-origin'] = '*';
+                            proxyRes.headers['access-control-allow-methods'] = 'GET, HEAD, OPTIONS';
+                        });
+                    },
+                },
+            },
             fs: {
                 allow: ['.', 'node_modules'],
                 // host: true,

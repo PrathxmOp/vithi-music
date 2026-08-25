@@ -1,6 +1,6 @@
 // js/music-api.js
 
-import { LosslessAPI } from './api.js';
+import { JioSaavnAPI } from './jiosaavn-api.js';
 import { PodcastsAPI } from './podcasts-api.js';
 import { musicProviderSettings } from './storage.js';
 import { getCommunityPlaylist } from './community-playlists.js';
@@ -8,7 +8,7 @@ import { getCommunityPlaylist } from './community-playlists.js';
 /**
  * MusicAPI - Singleton class that provides a unified interface for accessing music streaming services.
  *
- * Supports multiple providers (primarily Tidal) and includes functionality for searching,
+ * Supports multiple providers (JioSaavn API) and includes functionality for searching,
  * retrieving metadata, streaming, and managing playlists, artists, albums, tracks, and podcasts.
  *
  * @class MusicAPI
@@ -31,7 +31,7 @@ import { getCommunityPlaylist } from './community-playlists.js';
  * // Get stream URL
  * const streamUrl = await api.getStreamUrl('track-id', 'HIGH');
  *
- * @property {LosslessAPI} tidalAPI - The Tidal API instance
+ * @property {JioSaavnAPI} tidalAPI - The JioSaavn API instance
  * @property {PodcastsAPI} podcastsAPI - The Podcasts API instance
  * @property {Object} _settings - Configuration settings
  * @property {Map} videoArtworkCache - Cache for video artwork data
@@ -53,7 +53,7 @@ export class MusicAPI {
 
     /** @private */
     constructor(settings) {
-        this.tidalAPI = new LosslessAPI(settings);
+        this.tidalAPI = new JioSaavnAPI(settings);
         this.podcastsAPI = new PodcastsAPI();
         this._settings = settings;
         this.videoArtworkCache = new Map();
@@ -149,6 +149,15 @@ export class MusicAPI {
         const api = this.getAPI();
         const cleanId = this.stripProviderPrefix(id);
         return api.getTrackMetadata(cleanId);
+    }
+
+    async getLyrics(id) {
+        const api = this.getAPI();
+        const cleanId = this.stripProviderPrefix(id);
+        if (typeof api.getLyrics === 'function') {
+            return api.getLyrics(cleanId);
+        }
+        return null;
     }
 
     async getAlbum(id) {

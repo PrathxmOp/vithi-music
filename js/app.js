@@ -531,7 +531,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Populate commit info
     {
-        const repo = 'https://github.com/monochrome-music/monochrome';
+        const repo = 'https://github.com/PrathxmOp/vithi-music';
         // eslint-disable-next-line no-undef
         const hash = typeof __COMMIT_HASH__ !== 'undefined' ? __COMMIT_HASH__ : 'dev';
         const commitLink =

@@ -109,8 +109,13 @@ const AOTY_BASE = 'https://aoty.prigoana.pw';
 const AOTY_CACHE_TTL = 86_400_000; // 24 hours
 
 function aotyCoverUrl(url) {
-    if (!url) return url;
-    return String(url).replace(/(https?:\/\/cdn2\.albumoftheyear\.org\/)\d+x0\//, '$15000x0/');
+    if (!url) return 'images/monochrome_logo.svg';
+    const str = String(url);
+    if (str.includes('albumoftheyear.org')) {
+        const cleanedUrl = str.replace(/(https?:\/\/cdn2\.albumoftheyear\.org\/)\d+x0\//, '$1500x0/');
+        return `https://wsrv.nl/?url=${encodeURIComponent(cleanedUrl)}`;
+    }
+    return str;
 }
 
 async function fetchAOTY(path) {
@@ -642,8 +647,11 @@ export class UIRenderer {
             size = '160';
         }
 
-        const imageUrl =
+        let imageUrl =
             type === 'artist' ? this.api.getArtistPictureUrl(cover, size) : this.api.getCoverUrl(cover, size);
+        if (!imageUrl) {
+            imageUrl = 'images/monochrome_logo.svg';
+        }
 
         if (videoCoverUrl) {
             return `<video src="${videoCoverUrl}" poster="${imageUrl}" class="${className}" alt="${alt}" preload="metadata" playsinline muted></video>`;
@@ -661,10 +669,10 @@ export class UIRenderer {
             const tidalUrl = `https://resources.tidal.com/images/${formattedId}/320x320.jpg`;
             const wsrvUrl = `https://wsrv.nl/?url=${encodeURIComponent(tidalUrl)}&w=250&h=250&output=webp`;
             const fetchPriorityAttr = loading === 'eager' ? ' fetchpriority="high"' : '';
-            return `<img crossorigin="anonymous" referrerpolicy="no-referrer" src="${wsrvUrl}" class="${className}" alt="${alt}" loading="${loading}"${fetchPriorityAttr}>`;
+            return `<img crossorigin="anonymous" referrerpolicy="no-referrer" src="${wsrvUrl}" class="${className}" alt="${alt}" loading="${loading}"${fetchPriorityAttr} onerror="this.src='images/monochrome_logo.svg'">`;
         }
 
-        return `<img crossorigin="anonymous" referrerpolicy="no-referrer" src="${imageUrl}" class="${className}" alt="${alt}" loading="${loading}">`;
+        return `<img crossorigin="anonymous" referrerpolicy="no-referrer" src="${imageUrl}" class="${className}" alt="${alt}" loading="${loading}" onerror="this.src='images/monochrome_logo.svg'">`;
     }
 
     createBaseCardHTML({
@@ -2274,8 +2282,11 @@ export class UIRenderer {
         document.addEventListener('mouseup', () => {
             if (isFsSeeking) {
                 const activeEl = this.player.activeElement;
-                if (!isNaN(activeEl.duration)) {
-                    void this.player.seekTo(lastFsSeekPosition * activeEl.duration, { resume: wasFsPlaying });
+                const duration = (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity)
+                    ? activeEl.duration
+                    : (this.player.currentTrack?.duration || 0);
+                if (duration > 0) {
+                    void this.player.seekTo(lastFsSeekPosition * duration, { resume: wasFsPlaying });
                 }
                 isFsSeeking = false;
             }
@@ -2284,8 +2295,11 @@ export class UIRenderer {
         document.addEventListener('touchend', () => {
             if (isFsSeeking) {
                 const activeEl = this.player.activeElement;
-                if (!isNaN(activeEl.duration)) {
-                    void this.player.seekTo(lastFsSeekPosition * activeEl.duration, { resume: wasFsPlaying });
+                const duration = (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity)
+                    ? activeEl.duration
+                    : (this.player.currentTrack?.duration || 0);
+                if (duration > 0) {
+                    void this.player.seekTo(lastFsSeekPosition * duration, { resume: wasFsPlaying });
                 }
                 isFsSeeking = false;
             }
@@ -2554,38 +2568,6 @@ export class UIRenderer {
 
     async loadDonateGoal() {
         this.setupCryptoCopy();
-
-        const goal = document.getElementById('donate-goal');
-        const goalPercent = document.getElementById('donate-goal-percent');
-        const goalProgress = document.getElementById('donate-goal-progress');
-        const donateBtn = document.querySelector('#page-donate a.btn-primary');
-
-        const sidebarProgress = document.getElementById('sidebar-donate-goal-progress');
-        const sidebarText = document.getElementById('sidebar-donate-goal-text');
-
-        try {
-            const response = await fetch('https://goal.samidy.xyz/index.json');
-            const data = await response.json();
-            if (data && data.goal) {
-                const current = data.goal.current_amount || 0;
-                const target = data.goal.target_amount || 1000;
-                const percentage = Math.min(100, Math.max(0, (current / target) * 100));
-
-                if (goal)
-                    goal.textContent = `$${current.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                if (goalPercent) goalPercent.textContent = `${percentage.toFixed(1)}%`;
-                if (goalProgress) goalProgress.style.width = `${percentage}%`;
-
-                if (sidebarText) {
-                    sidebarText.textContent = `${percentage.toFixed(0)}%`;
-                }
-                if (sidebarProgress) {
-                    sidebarProgress.style.width = `${percentage}%`;
-                }
-            }
-        } catch (error) {
-            // lowk wrapping it in the try-catch for the larp
-        }
     }
 
     async renderPartiesPage() {
@@ -3014,73 +2996,77 @@ export class UIRenderer {
 
         container.classList.remove('card-grid');
 
-        container.innerHTML = `<div class="card-grid">${this.createSkeletonCards(12)}</div>`;
+        const GENRES = [
+            { id: 'hip_hop', name: 'Hip-Hop' },
+            { id: 'rnb', name: 'R&B / Soul' },
+            { id: 'blues', name: 'Blues' },
+            { id: 'classical', name: 'Classical' },
+            { id: 'country', name: 'Country' },
+            { id: 'dance_electronic', name: 'Dance & Electronic' },
+            { id: 'americana', name: 'Folk / Americana' },
+            { id: 'world', name: 'Global' },
+            { id: 'gospel', name: 'Gospel / Christian' },
+            { id: 'jazz', name: 'Jazz' },
+            { id: 'kpop', name: 'K-Pop' },
+            { id: 'kids', name: 'Kids' },
+            { id: 'latin', name: 'Latin' },
+            { id: 'metal', name: 'Metal' },
+            { id: 'pop', name: 'Pop' },
+            { id: 'reggae', name: 'Reggae / Dancehall' },
+            { id: 'retro', name: 'Legacy' },
+            { id: 'indierock', name: 'Rock / Indie' },
+        ];
+
+        const genresSection = document.createElement('section');
+        genresSection.className = 'content-section';
+        genresSection.innerHTML = `<h2 class="section-title">Genres</h2>`;
+
+        const genresGrid = document.createElement('div');
+        genresGrid.style.display = 'flex';
+        genresGrid.style.flexWrap = 'wrap';
+        genresGrid.style.gap = '0.5rem';
+        genresGrid.innerHTML = GENRES.map(
+            (genre) => `
+            <div class="card genre-card" data-genre-id="${genre.id}" data-genre-name="${escapeHtml(genre.name)}" style="cursor: pointer; background: var(--secondary); padding: 0.6rem 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                <h3 style="margin: 0; font-size: 0.875rem; font-weight: 600;">${escapeHtml(genre.name)}</h3>
+            </div>
+        `
+        ).join('');
+
+        genresSection.appendChild(genresGrid);
+        container.appendChild(genresSection);
+
+        for (const card of genresGrid.querySelectorAll('.genre-card')) {
+            card.addEventListener('click', async () => {
+                await this.renderGenrePage(card.dataset.genreId, card.dataset.genreName);
+            });
+        }
+
+        const exploreContentContainer = document.createElement('div');
+        exploreContentContainer.innerHTML = `<div class="card-grid">${this.createSkeletonCards(12)}</div>`;
+        container.appendChild(exploreContentContainer);
 
         try {
-            const response = await fetch('https://hot.monochrome.tf/');
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const response = await fetch('https://hot.monochrome.tf/', { signal: controller.signal });
+            clearTimeout(timeoutId);
+
             if (!response.ok) throw new Error('Failed to load explore data');
             const data = await response.json();
 
-            container.innerHTML = '';
-
-            const GENRES = [
-                { id: 'hip_hop', name: 'Hip-Hop' },
-                { id: 'rnb', name: 'R&B / Soul' },
-                { id: 'blues', name: 'Blues' },
-                { id: 'classical', name: 'Classical' },
-                { id: 'country', name: 'Country' },
-                { id: 'dance_electronic', name: 'Dance & Electronic' },
-                { id: 'americana', name: 'Folk / Americana' },
-                { id: 'world', name: 'Global' },
-                { id: 'gospel', name: 'Gospel / Christian' },
-                { id: 'jazz', name: 'Jazz' },
-                { id: 'kpop', name: 'K-Pop' },
-                { id: 'kids', name: 'Kids' },
-                { id: 'latin', name: 'Latin' },
-                { id: 'metal', name: 'Metal' },
-                { id: 'pop', name: 'Pop' },
-                { id: 'reggae', name: 'Reggae / Dancehall' },
-                { id: 'retro', name: 'Legacy' },
-                { id: 'indierock', name: 'Rock / Indie' },
-            ];
-
-            if (GENRES.length > 0) {
-                const genresSection = document.createElement('section');
-                genresSection.className = 'content-section';
-                genresSection.innerHTML = `<h2 class="section-title">Genres</h2>`;
-
-                const genresGrid = document.createElement('div');
-                genresGrid.style.display = 'flex';
-                genresGrid.style.flexWrap = 'wrap';
-                genresGrid.style.gap = '0.5rem';
-                genresGrid.innerHTML = GENRES.map(
-                    (genre) => `
-                    <div class="card genre-card" data-genre-id="${genre.id}" data-genre-name="${escapeHtml(genre.name)}" style="cursor: pointer; background: var(--secondary); padding: 0.6rem 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
-                        <h3 style="margin: 0; font-size: 0.875rem; font-weight: 600;">${escapeHtml(genre.name)}</h3>
-                    </div>
-                `
-                ).join('');
-
-                genresSection.appendChild(genresGrid);
-                container.appendChild(genresSection);
-
-                for (const card of genresGrid.querySelectorAll('.genre-card')) {
-                    card.addEventListener('click', async () => {
-                        await this.renderGenrePage(card.dataset.genreId, card.dataset.genreName);
-                    });
-                }
-            }
+            exploreContentContainer.innerHTML = '';
 
             if (data.top_albums && data.top_albums.length > 0) {
-                await this.renderExploreSection(container, 'Trending Albums', data.top_albums, 'album');
+                await this.renderExploreSection(exploreContentContainer, 'Trending Albums', data.top_albums, 'album');
             }
 
             if (data.top_tracks && data.top_tracks.length > 0) {
-                await this.renderExploreSection(container, 'Trending Tracks', data.top_tracks, 'track');
+                await this.renderExploreSection(exploreContentContainer, 'Trending Tracks', data.top_tracks, 'track');
             }
 
             if (data.featured_playlists && data.featured_playlists.length > 0) {
-                await this.renderExploreSection(container, 'Featured Playlists', data.featured_playlists, 'playlist');
+                await this.renderExploreSection(exploreContentContainer, 'Featured Playlists', data.featured_playlists, 'playlist');
             }
 
             if (data.sections && data.sections.length > 0) {
@@ -3092,18 +3078,34 @@ export class UIRenderer {
                         else if (section.type === 'PLAYLIST_LIST') type = 'playlist';
 
                         if (type) {
-                            await this.renderExploreSection(container, section.title, section.items, type);
+                            await this.renderExploreSection(exploreContentContainer, section.title, section.items, type);
                         }
                     }
                 }
             }
-
-            if (container.children.length === 0) {
-                container.innerHTML = createPlaceholder('No explore content available.');
-            }
         } catch (e) {
-            console.error(e);
-            container.innerHTML = createPlaceholder('Failed to load explore content.');
+            console.warn('hot.monochrome.tf unreachable, using JioSaavn fallback for explore:', e);
+            exploreContentContainer.innerHTML = '';
+            try {
+                const [albumsRes, tracksRes] = await Promise.all([
+                    this.api.searchAlbums('Trending Hits').catch(() => ({ items: [] })),
+                    this.api.searchTracks('Trending Hits').catch(() => ({ items: [] })),
+                ]);
+
+                if (albumsRes.items && albumsRes.items.length > 0) {
+                    await this.renderExploreSection(exploreContentContainer, 'Trending Albums', albumsRes.items.slice(0, 12), 'album');
+                }
+                if (tracksRes.items && tracksRes.items.length > 0) {
+                    await this.renderExploreSection(exploreContentContainer, 'Trending Tracks', tracksRes.items.slice(0, 15), 'track');
+                }
+
+                if (exploreContentContainer.children.length === 0) {
+                    exploreContentContainer.innerHTML = createPlaceholder('No explore content available right now.');
+                }
+            } catch (fallbackErr) {
+                console.error('Explore fallback failed:', fallbackErr);
+                exploreContentContainer.innerHTML = createPlaceholder('Failed to load explore content.');
+            }
         }
     }
 
@@ -3737,7 +3739,10 @@ export class UIRenderer {
         });
 
         try {
-            const response = await fetch(`https://hot.monochrome.tf/explore/genre/?id=${genreId}`);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const response = await fetch(`https://hot.monochrome.tf/explore/genre/?id=${genreId}`, { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (!response.ok) throw new Error('Failed to load genre data');
             const data = await response.json();
 
@@ -3767,13 +3772,35 @@ export class UIRenderer {
                 contentContainer.innerHTML = createPlaceholder('No content found for this genre.');
             }
         } catch (e) {
-            console.error(e);
+            console.warn('hot.monochrome.tf genre unreachable, using JioSaavn fallback:', e);
             const header = container.firstElementChild;
             container.innerHTML = '';
-            container.appendChild(header);
-            const errorDiv = document.createElement('div');
-            errorDiv.innerHTML = createPlaceholder('Failed to load genre content.');
-            container.appendChild(errorDiv);
+            if (header) container.appendChild(header);
+            const contentContainer = document.createElement('div');
+            container.appendChild(contentContainer);
+
+            try {
+                const [albumsRes, tracksRes] = await Promise.all([
+                    this.api.searchAlbums(genreName).catch(() => ({ items: [] })),
+                    this.api.searchTracks(genreName).catch(() => ({ items: [] })),
+                ]);
+
+                if (albumsRes.items && albumsRes.items.length > 0) {
+                    await this.renderExploreSection(contentContainer, `${genreName} Albums`, albumsRes.items.slice(0, 12), 'album');
+                }
+                if (tracksRes.items && tracksRes.items.length > 0) {
+                    await this.renderExploreSection(contentContainer, `${genreName} Songs`, tracksRes.items.slice(0, 15), 'track');
+                }
+
+                if (contentContainer.children.length === 0) {
+                    contentContainer.innerHTML = createPlaceholder('No content found for this genre.');
+                }
+            } catch (fallbackErr) {
+                console.error('Genre fallback failed:', fallbackErr);
+                const errorDiv = document.createElement('div');
+                errorDiv.innerHTML = createPlaceholder('Failed to load genre content.');
+                container.appendChild(errorDiv);
+            }
         }
     }
 
@@ -6175,8 +6202,10 @@ export class UIRenderer {
 
             this.adjustTitleFontSize(nameEl, artist.name);
 
+            const popularityVal = (artist.popularity != null && !isNaN(artist.popularity)) ? artist.popularity : 85;
+            const popularityHtml = `<span>${popularityVal}% Popularity</span>`;
             metaEl.innerHTML = `
-                <span>${artist.popularity}% Popularity</span>
+                ${popularityHtml}
                 <div class="artist-tags">
                     ${(artist.artistRoles || [])
                         .filter((role) => role.category)
@@ -6186,7 +6215,7 @@ export class UIRenderer {
             `;
 
             this.api.getArtistSocials(artist.name).then((links) => {
-                if (socialsEl && links.length > 0) {
+                if (socialsEl && Array.isArray(links) && links.length > 0) {
                     socialsEl.innerHTML = links.map((link) => this.createSocialLinkHTML(link)).join('');
                 }
             });

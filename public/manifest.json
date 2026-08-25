@@ -1,7 +1,7 @@
 {
-    "name": "Monochrome Music",
-    "short_name": "Monochrome",
-    "description": "A minimalist music streaming application",
+    "name": "Vithi Music",
+    "short_name": "Vithi",
+    "description": "Vithi - A music streaming web app powered by JioSaavn",
     "start_url": "./",
     "display": "standalone",
     "display_override": ["window-controls-overlay"],
