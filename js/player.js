@@ -418,24 +418,23 @@ export class Player {
                 gainDb = trackReplayGain || 0;
                 peak = trackPeakAmplitude || 1.0;
             }
+        }
 
-            // Apply Pre-Amp
-            gainDb += replayGainSettings.getPreamp();
+        const preamp = replayGainSettings.getPreamp();
+        let preampMultiplier = 1.0;
+        if (preamp > 10) {
+            preampMultiplier = preamp / 100;
+        } else {
+            gainDb += preamp;
         }
 
         // Convert dB to linear scale: 10^(dB/20)
-        let scale = Math.pow(10, gainDb / 20);
-
-        // Peak protection (prevent clipping)
-        if (scale * peak > 1.0) {
-            scale = 1.0 / peak;
-        }
+        let scale = Math.pow(10, gainDb / 20) * preampMultiplier;
 
         // Apply exponential volume curve if enabled
         const curvedVolume = exponentialVolumeSettings.applyCurve(this.userVolume);
 
-        // Calculate effective volume
-        return Math.max(0, Math.min(1, curvedVolume * scale));
+        return Math.max(0, Math.min(5.0, scale * curvedVolume));
     }
 
     applyAudioEffects() {
@@ -2727,43 +2726,29 @@ export class Player {
         });
     }
 
-    async seekTo(time, { resume = false } = {}) {
+    async seekTo(time, { resume = true } = {}) {
         const element = this.activeElement;
         if (!element) return;
 
+        const wasPlaying = !element.paused;
         const target = this.clampSeekTime(time, element);
         const sequence = ++this.seekSequence;
-        const shouldCorrect = this.shouldCorrectSafariSeek();
-        const resumeAfterSeek = resume || (shouldCorrect && !element.paused);
-        let correction = shouldCorrect ? this.safariSeekCorrectionSeconds : 0;
-        const attempts = shouldCorrect ? 3 : 1;
 
-        if (shouldCorrect && !element.paused) {
-            element.pause();
+        try {
+            if (element.fastSeek && typeof element.fastSeek === 'function') {
+                element.fastSeek(target);
+            } else {
+                element.currentTime = target;
+            }
+        } catch (e) {
+            try {
+                element.currentTime = target;
+            } catch (err) {}
         }
 
-        for (let attempt = 0; attempt < attempts; attempt += 1) {
-            const requestedTime = this.clampSeekTime(target + correction, element);
-            const seeked = shouldCorrect ? this.waitForSeeked(element) : null;
-            element.currentTime = requestedTime;
-
-            if (!shouldCorrect) break;
-            await seeked;
-            if (sequence !== this.seekSequence || element !== this.activeElement) return;
-
-            const error = target - element.currentTime;
-            if (!Number.isFinite(error) || Math.abs(error) <= 0.05) break;
-
-            // Safari can land direct FLAC seeks on a nearby decode point. Measure that
-            // miss and compensate instead of applying a fixed timing offset to lyrics.
-            correction = Math.max(-2, Math.min(2, correction + error));
-        }
-
-        if (shouldCorrect) {
-            this.safariSeekCorrectionSeconds = correction;
-        }
         this.updateMediaSessionPositionState();
-        if (resumeAfterSeek && sequence === this.seekSequence) {
+
+        if ((wasPlaying || resume) && sequence === this.seekSequence) {
             await this.safePlay(element);
         }
     }
