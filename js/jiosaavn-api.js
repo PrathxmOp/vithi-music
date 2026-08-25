@@ -3,14 +3,7 @@
 import forge from 'node-forge';
 import { APICache } from './cache.js';
 import { getProxyUrl } from './proxy-utils.js';
-import {
-    Track,
-    Album,
-    Artist,
-    TrackAlbum,
-    PreparedTrack,
-    PreparedAlbum,
-} from './container-classes.js';
+import { Track, Album, Artist, TrackAlbum, PreparedTrack, PreparedAlbum } from './container-classes.js';
 
 export function decryptSaavnMediaUrl(encryptedMediaUrl) {
     if (!encryptedMediaUrl) return null;
@@ -77,12 +70,12 @@ export class JioSaavnAPI {
     }
 
     getImageUrl(imagesObj, defaultUrl) {
-        const isDefaultJioSaavnImage = (url) => typeof url === 'string' && (
-            url.includes('artist-default') ||
-            url.includes('default-music') ||
-            url.includes('default-film') ||
-            url.includes('www.jiosaavn.com/_i/')
-        );
+        const isDefaultJioSaavnImage = (url) =>
+            typeof url === 'string' &&
+            (url.includes('artist-default') ||
+                url.includes('default-music') ||
+                url.includes('default-film') ||
+                url.includes('www.jiosaavn.com/_i/'));
 
         if (imagesObj && typeof imagesObj === 'object') {
             const candidate = imagesObj['500x500'] || imagesObj['150x150'] || imagesObj['50x50'];
@@ -101,7 +94,10 @@ export class JioSaavnAPI {
         let artists = [];
         if (artistMapObj && Array.isArray(artistMapObj.primary_artists) && artistMapObj.primary_artists.length > 0) {
             artists = artistMapObj.primary_artists.map((a) => {
-                const cleanName = (a.name || '').replace(/&quot;/g, '"').replace(/&#039;/g, "'").trim();
+                const cleanName = (a.name || '')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#039;/g, "'")
+                    .trim();
                 const picture = this.getImageUrl(a.images, a.image || a.picture);
                 return new Artist({
                     id: `saavn-artist-${encodeURIComponent(cleanName)}`,
@@ -114,7 +110,10 @@ export class JioSaavnAPI {
             const rawStr = primaryArtistsStr || singersStr || 'Unknown Artist';
             const names = rawStr.split(/,\s*|\s*&\s*/).filter(Boolean);
             artists = names.map((name) => {
-                const cleanName = name.replace(/&quot;/g, '"').replace(/&#039;/g, "'").trim();
+                const cleanName = name
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#039;/g, "'")
+                    .trim();
                 return new Artist({
                     id: `saavn-artist-${encodeURIComponent(cleanName)}`,
                     name: cleanName,
@@ -225,7 +224,12 @@ export class JioSaavnAPI {
         const results = {
             tracks: tracksRes,
             albums: albumsRes,
-            artists: { items: artistsList, limit: artistsList.length, offset: 0, totalNumberOfItems: artistsList.length },
+            artists: {
+                items: artistsList,
+                limit: artistsList.length,
+                offset: 0,
+                totalNumberOfItems: artistsList.length,
+            },
             playlists: { items: [], limit: 0, offset: 0, totalNumberOfItems: 0 },
             videos: { items: [], limit: 0, offset: 0, totalNumberOfItems: 0 },
         };
@@ -263,7 +267,9 @@ export class JioSaavnAPI {
         if (cached) return cached;
 
         try {
-            const data = await this.fetchJioSaavn(`__call=search.getAlbumResults&q=${encodeURIComponent(query)}&p=1&n=30`);
+            const data = await this.fetchJioSaavn(
+                `__call=search.getAlbumResults&q=${encodeURIComponent(query)}&p=1&n=30`
+            );
             const rawItems = data.results || [];
             const preparedAlbums = rawItems.map((item) => this.prepareAlbum(item));
 
@@ -439,7 +445,9 @@ export class JioSaavnAPI {
 
         try {
             const artistName = decodeURIComponent(String(artistId).replace(/^saavn-artist-/, ''));
-            const searchRes = await this.fetchJioSaavn(`__call=search.getArtistResults&q=${encodeURIComponent(artistName)}&p=1&n=12`);
+            const searchRes = await this.fetchJioSaavn(
+                `__call=search.getArtistResults&q=${encodeURIComponent(artistName)}&p=1&n=12`
+            );
             const items = searchRes.results || [];
             const artists = items.map((item) => {
                 return new Artist({
@@ -582,9 +590,13 @@ export class JioSaavnAPI {
             artists.map(async (artist) => {
                 if (artist && (!artist.picture || artist.picture === 'images/monochrome_logo.svg')) {
                     try {
-                        const searchRes = await this.fetchJioSaavn(`__call=search.getArtistResults&q=${encodeURIComponent(artist.name)}&p=1&n=5`);
+                        const searchRes = await this.fetchJioSaavn(
+                            `__call=search.getArtistResults&q=${encodeURIComponent(artist.name)}&p=1&n=5`
+                        );
                         const rawItems = searchRes.results || [];
-                        const matched = rawItems.find((i) => (i.name || '').toLowerCase() === (artist.name || '').toLowerCase()) || rawItems[0];
+                        const matched =
+                            rawItems.find((i) => (i.name || '').toLowerCase() === (artist.name || '').toLowerCase()) ||
+                            rawItems[0];
                         if (matched) {
                             artist.picture = this.getImageUrl(matched.images, matched.image);
                         }
@@ -621,7 +633,12 @@ export class JioSaavnAPI {
     getCoverUrl(id) {
         if (!id) return 'images/monochrome_logo.svg';
         if (typeof id === 'string') {
-            if (id.includes('artist-default') || id.includes('default-music') || id.includes('default-film') || id.includes('www.jiosaavn.com/_i/')) {
+            if (
+                id.includes('artist-default') ||
+                id.includes('default-music') ||
+                id.includes('default-film') ||
+                id.includes('www.jiosaavn.com/_i/')
+            ) {
                 return 'images/monochrome_logo.svg';
             }
             return id;
@@ -637,7 +654,12 @@ export class JioSaavnAPI {
     getArtistPictureUrl(id) {
         if (!id) return 'images/monochrome_logo.svg';
         if (typeof id === 'string') {
-            if (id.includes('artist-default') || id.includes('default-music') || id.includes('default-film') || id.includes('www.jiosaavn.com/_i/')) {
+            if (
+                id.includes('artist-default') ||
+                id.includes('default-music') ||
+                id.includes('default-film') ||
+                id.includes('www.jiosaavn.com/_i/')
+            ) {
                 return 'images/monochrome_logo.svg';
             }
             return id;

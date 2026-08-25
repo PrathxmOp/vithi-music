@@ -1099,9 +1099,10 @@ function initializeSmoothSliders(player) {
     document.addEventListener('mouseup', () => {
         if (isSeeking) {
             const activeEl = player.activeElement;
-            const duration = (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity)
-                ? activeEl.duration
-                : (player.currentTrack?.duration || 0);
+            const duration =
+                !isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity
+                    ? activeEl.duration
+                    : player.currentTrack?.duration || 0;
             if (duration > 0) {
                 void player.seekTo(lastSeekPosition * duration, { resume: wasPlaying });
             }
@@ -1117,9 +1118,10 @@ function initializeSmoothSliders(player) {
     document.addEventListener('touchend', () => {
         if (isSeeking) {
             const activeEl = player.activeElement;
-            const duration = (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity)
-                ? activeEl.duration
-                : (player.currentTrack?.duration || 0);
+            const duration =
+                !isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity
+                    ? activeEl.duration
+                    : player.currentTrack?.duration || 0;
             if (duration > 0) {
                 void player.seekTo(lastSeekPosition * duration, { resume: wasPlaying });
             }
@@ -1140,9 +1142,10 @@ function initializeSmoothSliders(player) {
         if (!isSeeking) {
             const activeEl = player.activeElement;
             seek(progressBar, e, (position) => {
-                const duration = (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity)
-                    ? activeEl.duration
-                    : (player.currentTrack?.duration || 0);
+                const duration =
+                    !isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity
+                        ? activeEl.duration
+                        : player.currentTrack?.duration || 0;
                 if (duration > 0) {
                     const targetTime = position * duration;
                     const progressFill = document.querySelector('.progress-fill');

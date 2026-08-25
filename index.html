@@ -4223,8 +4223,7 @@
                                     <div class="info">
                                         <span class="label">Prefer Dolby Atmos</span>
                                         <span class="description"
-                                            >Automatically request Dolby Atmos spatial audio when
-                                            available</span
+                                            >Automatically request Dolby Atmos spatial audio when available</span
                                         >
                                     </div>
                                     <label class="toggle-switch">
@@ -6117,8 +6116,8 @@
                     <h2 class="section-title" style="text-align: center">About Vithi</h2>
                     <div class="about-content">
                         <p class="about-description">
-                            Vithi is a fork of Monochrome, powered by JioSaavn API.
-                            Built with modern web technologies, it provides a clean, fast, and distraction-free listening experience.
+                            Vithi is a fork of Monochrome, powered by JioSaavn API. Built with modern web technologies,
+                            it provides a clean, fast, and distraction-free listening experience.
                             <br />
                         </p>
                         <div class="about-donate">
@@ -6156,9 +6155,7 @@
                         </div>
                         <div class="about-footer">
                             <p class="version">Vithi v2.5.1</p>
-                            <p class="disclaimer">
-                                Vithi is an open-source project fork powered by JioSaavn API.
-                            </p>
+                            <p class="disclaimer">Vithi is an open-source project fork powered by JioSaavn API.</p>
                         </div>
                     </div>
                 </div>
@@ -6225,13 +6222,75 @@
                             If Vithi has been useful to you and you're able to, consider making a donation!
                         </p>
 
-                        <div class="upi-donate-card" style="text-align: center; margin: 2rem auto; padding: 2rem 1.5rem; background: var(--card-bg, rgba(255, 255, 255, 0.05)); border-radius: 20px; max-width: 340px; border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)); backdrop-filter: blur(10px);">
-                            <h3 style="margin-bottom: 1.25rem; font-size: 1.25rem; font-weight: 600; color: var(--foreground, #ffffff);">Donate via UPI</h3>
-                            <div style="background: #ffffff; padding: 12px; border-radius: 16px; display: inline-block; margin-bottom: 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A%2F%2Fpay%3Fpa%3Dprathxm%40ybl%26pn%3DVithi%26cu%3DINR" alt="UPI QR Code" style="width: 210px; height: 210px; display: block; border-radius: 8px;" />
+                        <div
+                            class="upi-donate-card"
+                            style="
+                                text-align: center;
+                                margin: 2rem auto;
+                                padding: 2rem 1.5rem;
+                                background: var(--card-bg, rgba(255, 255, 255, 0.05));
+                                border-radius: 20px;
+                                max-width: 340px;
+                                border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+                                backdrop-filter: blur(10px);
+                            "
+                        >
+                            <h3
+                                style="
+                                    margin-bottom: 1.25rem;
+                                    font-size: 1.25rem;
+                                    font-weight: 600;
+                                    color: var(--foreground, #ffffff);
+                                "
+                            >
+                                Donate via UPI
+                            </h3>
+                            <div
+                                style="
+                                    background: #ffffff;
+                                    padding: 12px;
+                                    border-radius: 16px;
+                                    display: inline-block;
+                                    margin-bottom: 1.25rem;
+                                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                                "
+                            >
+                                <img
+                                    src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A%2F%2Fpay%3Fpa%3Dprathxm%40ybl%26pn%3DVithi%26cu%3DINR"
+                                    alt="UPI QR Code"
+                                    style="width: 210px; height: 210px; display: block; border-radius: 8px"
+                                />
                             </div>
-                            <p style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.75rem; letter-spacing: 0.5px; color: var(--foreground, #ffffff);">prathxm@ybl</p>
-                            <button id="copy-upi-btn" onclick="navigator.clipboard.writeText('prathxm@ybl'); const b=document.getElementById('copy-upi-btn'); b.innerText='Copied!'; setTimeout(()=>b.innerText='Copy UPI ID',2000);" class="btn-secondary" style="padding: 0.6rem 1.25rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; border-radius: 10px;">Copy UPI ID</button>
+                            <p
+                                style="
+                                    font-size: 1.15rem;
+                                    font-weight: 700;
+                                    margin-bottom: 0.75rem;
+                                    letter-spacing: 0.5px;
+                                    color: var(--foreground, #ffffff);
+                                "
+                            >
+                                prathxm@ybl
+                            </p>
+                            <button
+                                id="copy-upi-btn"
+                                onclick="
+                                    navigator.clipboard.writeText('prathxm@ybl');
+                                    const b = document.getElementById('copy-upi-btn');
+                                    b.innerText = 'Copied!';
+                                    setTimeout(() => (b.innerText = 'Copy UPI ID'), 2000);
+                                "
+                                class="btn-secondary"
+                                style="
+                                    padding: 0.6rem 1.25rem;
+                                    font-size: 0.95rem;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    border-radius: 10px;
+                                "
+                            >
+                                Copy UPI ID
+                            </button>
                         </div>
                         <div class="donate-crypto-section" id="donate-crypto-section" hidden>
                             <h3 class="donate-crypto-title">Pay with crypto</h3>

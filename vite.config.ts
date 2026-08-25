@@ -19,7 +19,7 @@ function proxyAudioPlugin() {
                         const apiRes = await fetch(targetUrl, {
                             headers: {
                                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-                                'Referer': 'https://www.jiosaavn.com/',
+                                Referer: 'https://www.jiosaavn.com/',
                             },
                         });
                         res.setHeader('Access-Control-Allow-Origin', '*');

@@ -21,4 +21,3 @@ export const wrapTidalUrl = (url) => {
         .replace('api.tidal.com', 'tidal-proxy.monochrome.tf/api')
         .replace('https://tidal.com', 'https://tidal-proxy.monochrome.tf/tidal');
 };
-

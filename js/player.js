@@ -392,7 +392,7 @@ export class Player {
             el.volume = 1.0; // Reset native volume to 1.0 when using Web Audio
             audioContextManager.setVolume(effectiveVolume);
         } else {
-        el.volume = effectiveVolume;
+            el.volume = effectiveVolume;
         }
     }
 
@@ -2705,9 +2705,10 @@ export class Player {
     clampSeekTime(time, element = this.activeElement) {
         const requested = Number(time);
         const safeTime = Number.isFinite(requested) ? Math.max(0, requested) : 0;
-        const duration = (element && Number.isFinite(element.duration) && element.duration > 0 && element.duration !== Infinity)
-            ? element.duration
-            : (this.currentTrack?.duration || 0);
+        const duration =
+            element && Number.isFinite(element.duration) && element.duration > 0 && element.duration !== Infinity
+                ? element.duration
+                : this.currentTrack?.duration || 0;
         return duration > 0 ? Math.min(safeTime, duration) : safeTime;
     }
 

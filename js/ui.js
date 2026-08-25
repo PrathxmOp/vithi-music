@@ -2282,9 +2282,10 @@ export class UIRenderer {
         document.addEventListener('mouseup', () => {
             if (isFsSeeking) {
                 const activeEl = this.player.activeElement;
-                const duration = (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity)
-                    ? activeEl.duration
-                    : (this.player.currentTrack?.duration || 0);
+                const duration =
+                    !isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity
+                        ? activeEl.duration
+                        : this.player.currentTrack?.duration || 0;
                 if (duration > 0) {
                     void this.player.seekTo(lastFsSeekPosition * duration, { resume: wasFsPlaying });
                 }
@@ -2295,9 +2296,10 @@ export class UIRenderer {
         document.addEventListener('touchend', () => {
             if (isFsSeeking) {
                 const activeEl = this.player.activeElement;
-                const duration = (!isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity)
-                    ? activeEl.duration
-                    : (this.player.currentTrack?.duration || 0);
+                const duration =
+                    !isNaN(activeEl.duration) && activeEl.duration > 0 && activeEl.duration !== Infinity
+                        ? activeEl.duration
+                        : this.player.currentTrack?.duration || 0;
                 if (duration > 0) {
                     void this.player.seekTo(lastFsSeekPosition * duration, { resume: wasFsPlaying });
                 }
@@ -3066,7 +3068,12 @@ export class UIRenderer {
             }
 
             if (data.featured_playlists && data.featured_playlists.length > 0) {
-                await this.renderExploreSection(exploreContentContainer, 'Featured Playlists', data.featured_playlists, 'playlist');
+                await this.renderExploreSection(
+                    exploreContentContainer,
+                    'Featured Playlists',
+                    data.featured_playlists,
+                    'playlist'
+                );
             }
 
             if (data.sections && data.sections.length > 0) {
@@ -3078,7 +3085,12 @@ export class UIRenderer {
                         else if (section.type === 'PLAYLIST_LIST') type = 'playlist';
 
                         if (type) {
-                            await this.renderExploreSection(exploreContentContainer, section.title, section.items, type);
+                            await this.renderExploreSection(
+                                exploreContentContainer,
+                                section.title,
+                                section.items,
+                                type
+                            );
                         }
                     }
                 }
@@ -3093,10 +3105,20 @@ export class UIRenderer {
                 ]);
 
                 if (albumsRes.items && albumsRes.items.length > 0) {
-                    await this.renderExploreSection(exploreContentContainer, 'Trending Albums', albumsRes.items.slice(0, 12), 'album');
+                    await this.renderExploreSection(
+                        exploreContentContainer,
+                        'Trending Albums',
+                        albumsRes.items.slice(0, 12),
+                        'album'
+                    );
                 }
                 if (tracksRes.items && tracksRes.items.length > 0) {
-                    await this.renderExploreSection(exploreContentContainer, 'Trending Tracks', tracksRes.items.slice(0, 15), 'track');
+                    await this.renderExploreSection(
+                        exploreContentContainer,
+                        'Trending Tracks',
+                        tracksRes.items.slice(0, 15),
+                        'track'
+                    );
                 }
 
                 if (exploreContentContainer.children.length === 0) {
@@ -3741,7 +3763,9 @@ export class UIRenderer {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3000);
-            const response = await fetch(`https://hot.monochrome.tf/explore/genre/?id=${genreId}`, { signal: controller.signal });
+            const response = await fetch(`https://hot.monochrome.tf/explore/genre/?id=${genreId}`, {
+                signal: controller.signal,
+            });
             clearTimeout(timeoutId);
             if (!response.ok) throw new Error('Failed to load genre data');
             const data = await response.json();
@@ -3786,10 +3810,20 @@ export class UIRenderer {
                 ]);
 
                 if (albumsRes.items && albumsRes.items.length > 0) {
-                    await this.renderExploreSection(contentContainer, `${genreName} Albums`, albumsRes.items.slice(0, 12), 'album');
+                    await this.renderExploreSection(
+                        contentContainer,
+                        `${genreName} Albums`,
+                        albumsRes.items.slice(0, 12),
+                        'album'
+                    );
                 }
                 if (tracksRes.items && tracksRes.items.length > 0) {
-                    await this.renderExploreSection(contentContainer, `${genreName} Songs`, tracksRes.items.slice(0, 15), 'track');
+                    await this.renderExploreSection(
+                        contentContainer,
+                        `${genreName} Songs`,
+                        tracksRes.items.slice(0, 15),
+                        'track'
+                    );
                 }
 
                 if (contentContainer.children.length === 0) {
@@ -6202,7 +6236,7 @@ export class UIRenderer {
 
             this.adjustTitleFontSize(nameEl, artist.name);
 
-            const popularityVal = (artist.popularity != null && !isNaN(artist.popularity)) ? artist.popularity : 85;
+            const popularityVal = artist.popularity != null && !isNaN(artist.popularity) ? artist.popularity : 85;
             const popularityHtml = `<span>${popularityVal}% Popularity</span>`;
             metaEl.innerHTML = `
                 ${popularityHtml}
