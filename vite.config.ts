@@ -36,10 +36,26 @@ function proxyAudioPlugin() {
                 if (req.url?.startsWith('/saavn-audio/')) {
                     const targetUrl = 'https://aac.saavncdn.com' + req.url.replace(/^\/saavn-audio/, '');
                     try {
-                        const audioRes = await fetch(targetUrl);
+                        const headers: Record<string, string> = {};
+                        if (req.headers.range) {
+                            headers['Range'] = req.headers.range;
+                        }
+                        const audioRes = await fetch(targetUrl, { headers });
                         res.setHeader('Access-Control-Allow-Origin', '*');
-                        res.setHeader('Access-Control-Allow-Headers', '*');
-                        res.setHeader('Content-Type', 'audio/mp4');
+                        res.setHeader('Access-Control-Allow-Headers', 'Range');
+                        res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Content-Length, Accept-Ranges');
+                        res.setHeader('Accept-Ranges', 'bytes');
+                        const contentType = audioRes.headers.get('content-type') || 'audio/mp4';
+                        res.setHeader('Content-Type', contentType);
+                        const contentLength = audioRes.headers.get('content-length');
+                        if (contentLength) {
+                            res.setHeader('Content-Length', contentLength);
+                        }
+                        const contentRange = audioRes.headers.get('content-range');
+                        if (contentRange) {
+                            res.setHeader('Content-Range', contentRange);
+                        }
+                        res.statusCode = audioRes.status;
                         const arrayBuffer = await audioRes.arrayBuffer();
                         res.end(Buffer.from(arrayBuffer));
                         return;

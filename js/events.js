@@ -50,9 +50,9 @@ function showDonationPrompt() {
     const el = document.createElement('div');
     el.className = 'support-banner donation-prompt';
     el.innerHTML = `
-        <div style="font-weight: 600; margin-bottom: 0.4rem;">Support Monochrome</div>
+        <div style="font-weight: 600; margin-bottom: 0.4rem;">Support Vithi</div>
         <p style="margin: 0 0 0.75rem; font-size: 0.85rem; line-height: 1.5; color: var(--muted-foreground);">
-            Enjoying the music? Monochrome is free, has no ads, and runs entirely on donations.
+            Enjoying the music? Vithi is free, has no ads, and runs entirely on donations.
         </p>
         <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
             <button class="btn-secondary" data-action="dismiss" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;">Maybe Later</button>

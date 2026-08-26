@@ -2,22 +2,11 @@ export const isTidalAudioUrl = () => false;
 
 export const getProxyUrl = (url) => {
     if (!url) return url;
+    // /saavn-audio/ is handled by Vite proxy in dev and nginx reverse proxy in production
     if (typeof url === 'string' && url.includes('saavncdn.com')) {
-        if (
-            typeof window !== 'undefined' &&
-            (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ) {
-            return url.replace(/^https?:\/\/aac\.saavncdn\.com/, '/saavn-audio');
-        }
-        return url;
+        return url.replace(/^https?:\/\/aac\.saavncdn\.com/, '/saavn-audio');
     }
     return url;
 };
 
-export const wrapTidalUrl = (url) => {
-    if (!url || typeof url !== 'string') return url;
-    return url
-        .replace('openapi.tidal.com', 'tidal-proxy.monochrome.tf/openapi')
-        .replace('api.tidal.com', 'tidal-proxy.monochrome.tf/api')
-        .replace('https://tidal.com', 'https://tidal-proxy.monochrome.tf/tidal');
-};
+export const wrapTidalUrl = (url) => url;

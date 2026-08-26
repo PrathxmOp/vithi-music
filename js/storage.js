@@ -2557,7 +2557,6 @@ export const sidebarSectionSettings = {
         'sidebar-nav-donate',
         'sidebar-nav-settings',
         'sidebar-nav-about-bottom',
-        'sidebar-nav-mobile',
         'sidebar-nav-discordbtn',
         'sidebar-nav-party',
         'sidebar-nav-githubbtn',
@@ -2711,12 +2710,6 @@ export const sidebarSectionSettings = {
             const stored = localStorage.getItem(this.ORDER_KEY);
             if (stored) {
                 let order = JSON.parse(stored);
-                if (Array.isArray(order) && !order.includes('sidebar-nav-mobile')) {
-                    const aboutIndex = order.indexOf('sidebar-nav-about-bottom');
-                    if (aboutIndex !== -1) {
-                        order.splice(aboutIndex + 1, 0, 'sidebar-nav-mobile');
-                    }
-                }
                 return this.normalizeOrder(order);
             }
         } catch {
@@ -2763,7 +2756,6 @@ export const sidebarSectionSettings = {
             { id: 'sidebar-nav-donate', check: this.shouldShowDonate() },
             { id: 'sidebar-nav-settings', check: this.shouldShowSettings() },
             { id: 'sidebar-nav-about-bottom', check: this.shouldShowAbout() },
-            { id: 'sidebar-nav-mobile', check: true },
             { id: 'sidebar-nav-discordbtn', check: this.shouldShowDiscord() },
             { id: 'sidebar-nav-party', check: this.shouldShowParty() },
             { id: 'sidebar-nav-githubbtn', check: this.shouldShowGithub() },

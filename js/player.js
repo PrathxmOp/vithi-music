@@ -1322,6 +1322,10 @@ export class Player {
             }
         }
 
+        if (this.radioEnabled && this.currentQueueIndex >= currentQueue.length - 2) {
+            void this.fetchRadioRecommendations().catch(console.error);
+        }
+
         if (shouldPreserveGestureToken) {
             void this.saveQueueState().catch(console.error);
         } else {
@@ -2386,9 +2390,26 @@ export class Player {
             const pickedSeeds = await this.pickRadioSeeds();
             if (pickedSeeds.length > 0) {
                 this.radioSeeds = pickedSeeds;
-                const initialQueue = [...pickedSeeds].sort(() => 0.5 - Math.random()).slice(0, 5);
-                await this.setQueue(initialQueue, 0, true);
-                await this.playAtIndex(0);
+                this.showRadioLoading(true);
+                try {
+                    const knownIds = new Set(pickedSeeds.map((s) => s.id));
+                    const recommendations = await this.api.getRecommendedTracksForPlaylist(
+                        pickedSeeds.slice(0, 5),
+                        20,
+                        { knownTrackIds: knownIds }
+                    );
+
+                    let initialQueue = [];
+                    if (recommendations && recommendations.length > 0) {
+                        initialQueue = recommendations.sort(() => 0.5 - Math.random()).slice(0, 10);
+                    } else {
+                        initialQueue = [...pickedSeeds].sort(() => 0.5 - Math.random()).slice(0, 5);
+                    }
+                    await this.setQueue(initialQueue, 0, true);
+                    await this.playAtIndex(0);
+                } finally {
+                    this.showRadioLoading(false);
+                }
             }
         } else {
             this.radioSeeds = Array.isArray(seeds) ? seeds : [seeds];

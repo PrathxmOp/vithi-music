@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: vithi-music
+    env: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 4173

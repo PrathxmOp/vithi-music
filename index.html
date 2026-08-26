@@ -1789,12 +1789,6 @@
                                             <span>About</span>
                                         </a>
                                     </li>
-                                    <li class="nav-item" id="sidebar-nav-mobile">
-                                        <a href="/mobile">
-                                            <use svg="!lucide/download.svg" size="24" />
-                                            <span>Download</span>
-                                        </a>
-                                    </li>
                                     <li class="nav-item" id="sidebar-nav-discordbtn">
                                         <a href="discord.html" target="_blank">
                                             <use svg="./images/discord.svg" size="64" />
@@ -2984,7 +2978,6 @@
                         <button class="settings-tab" data-tab="scrobbling">Scrobbling</button>
                         <button class="settings-tab" data-tab="audio">Audio</button>
                         <button class="settings-tab" data-tab="downloads">Downloads</button>
-                        <button class="settings-tab" data-tab="instances">Instances</button>
                         <button class="settings-tab" data-tab="system">System</button>
                     </div>
                     <div class="settings-tab-content active" id="settings-tab-appearance">
@@ -4208,46 +4201,10 @@
                                         <option value="LOW">Low (96 kbps AAC)</option>
                                     </select>
                                 </div>
-                                <div
-                                    class="setting-item codec-warning"
-                                    id="atmos-streaming-warning"
-                                    role="status"
-                                    aria-live="polite"
-                                    style="display: none"
-                                >
-                                    <div class="info setting-details">
-                                        <span class="description" id="atmos-streaming-warning-text"></span>
-                                    </div>
-                                </div>
-                                <div class="setting-item">
-                                    <div class="info">
-                                        <span class="label">Prefer Dolby Atmos</span>
-                                        <span class="description"
-                                            >Automatically request Dolby Atmos spatial audio when available</span
-                                        >
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="prefer-dolby-atmos-toggle" />
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-item">
-                                    <div class="info">
-                                        <span class="label">Native OS Dolby Atmos Rendering</span>
-                                        <span class="description"
-                                            >Render Atmos directly on Safari (Apple Spatial Audio) or Edge (Windows
-                                            Dolby Audio) for full volume</span
-                                        >
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="native-os-atmos-toggle" checked />
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
                                 <div class="setting-item">
                                     <div class="info">
                                         <span class="label">Show Quality Badges</span>
-                                        <span class="description">Display "HD" badge for Hi-Res tracks</span>
+                                        <span class="description">Display quality badge for tracks</span>
                                     </div>
                                     <label class="toggle-switch">
                                         <input type="checkbox" id="show-quality-badges-toggle" checked />
@@ -5508,15 +5465,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="setting-item">
-                                    <div class="info">
-                                        <span class="label">Lossless Container</span>
-                                        <span class="description">Container format for lossless downloads</span>
-                                    </div>
-                                    <select id="lossless-container-setting">
-                                        <option value="nochange">Don't change</option>
-                                    </select>
-                                </div>
                             </div>
                             <div class="settings-group">
                                 <div class="setting-item">
@@ -5759,171 +5707,18 @@
                         </div>
                     </div>
 
-                    <div class="settings-tab-content" id="settings-tab-instances">
+                    <div class="settings-tab-content" id="settings-tab-system">
                         <div class="settings-list">
                             <div class="settings-group">
                                 <div class="setting-item">
                                     <div class="info">
-                                        <span class="label" style="color: #f59e0b">Dev Mode</span>
-                                        <span class="description"
-                                            >Route all API requests through a local Tidal HiFi API server. Requires a
-                                            compatible server running at the specified URL.</span
-                                        >
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="dev-mode-toggle" />
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-item" id="dev-mode-url-setting" style="display: none">
-                                    <div class="info">
-                                        <span class="label">Dev Mode API URL</span>
-                                        <span class="description">The URL of your local Tidal HiFi API instance</span>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        id="dev-mode-url-input"
-                                        placeholder="http://127.0.0.1:8000"
-                                        style="
-                                            width: 220px;
-                                            padding: 0.35rem 0.5rem;
-                                            border: 1px solid var(--border);
-                                            border-radius: var(--radius-md);
-                                            background: var(--card);
-                                            color: var(--foreground);
-                                            font-size: 0.8rem;
-                                        "
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="settings-group">
-                                <div class="setting-item">
-                                    <div class="info">
-                                        <span class="label">ADVANCED: Custom Database/Auth</span>
+                                        <span class="label">Custom Database/Auth</span>
                                         <span class="description"
                                             >Configure custom PocketBase and Appwrite instances</span
                                         >
                                     </div>
                                     <button id="custom-db-btn" class="btn-secondary">Configure</button>
                                 </div>
-                            </div>
-
-                            <div class="settings-group">
-                                <div class="setting-item">
-                                    <div class="info">
-                                        <span class="label">Unified Playback</span>
-                                        <span class="description"
-                                            >Amazon is tried first, with the in-house lossless source handled by the
-                                            same API when Amazon is unavailable.</span
-                                        >
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="unified-playback-toggle" checked />
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-item">
-                                    <div class="info">
-                                        <span class="label">Unified Playback API URL</span>
-                                        <span class="description">The API endpoint that resolves Amazon and Mono</span>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        id="unified-playback-api-base-url"
-                                        placeholder="https://music-api.geeked.wtf"
-                                        style="
-                                            width: 220px;
-                                            padding: 0.35rem 0.5rem;
-                                            border: 1px solid var(--border);
-                                            border-radius: var(--radius-md);
-                                            background: var(--card);
-                                            color: var(--foreground);
-                                            font-size: 0.8rem;
-                                        "
-                                    />
-                                </div>
-                                <div class="setting-item">
-                                    <div class="info">
-                                        <span class="label">App API Key</span>
-                                        <span class="description"
-                                            >Bearer key used with a browser Turnstile session for playback</span
-                                        >
-                                    </div>
-                                    <input
-                                        type="password"
-                                        id="unified-playback-api-token"
-                                        placeholder="amp_…"
-                                        autocomplete="off"
-                                        style="
-                                            width: 220px;
-                                            padding: 0.35rem 0.5rem;
-                                            border: 1px solid var(--border);
-                                            border-radius: var(--radius-md);
-                                            background: var(--card);
-                                            color: var(--foreground);
-                                            font-size: 0.8rem;
-                                        "
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="settings-group">
-                                <div class="setting-item">
-                                    <div class="info">
-                                        <span class="label">Deezer Fallback</span>
-                                        <span class="description"
-                                            >Last-resort source when the primary and other fallback providers fail. Tops
-                                            out at 16-bit lossless (FLAC).</span
-                                        >
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="deezer-fallback-toggle" checked />
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-item">
-                                    <div class="info">
-                                        <span class="label">Deezer Fallback API URL</span>
-                                        <span class="description">The Deezer fallback API endpoint</span>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        id="deezer-fallback-api-base-url"
-                                        placeholder="https://dzr.tabs-vs-spaces.wtf"
-                                        style="
-                                            width: 220px;
-                                            padding: 0.35rem 0.5rem;
-                                            border: 1px solid var(--border);
-                                            border-radius: var(--radius-md);
-                                            background: var(--card);
-                                            color: var(--foreground);
-                                            font-size: 0.8rem;
-                                        "
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="settings-group">
-                                <div id="api-instance-manager">
-                                    <div class="setting-item">
-                                        <div class="info">
-                                            <span class="label">API Instances</span>
-                                            <span class="description">Manage and prioritize API instances.</span>
-                                        </div>
-                                        <button id="refresh-speed-test-btn" class="btn-secondary">
-                                            Refresh Instance List
-                                        </button>
-                                    </div>
-                                    <ul id="api-instance-list"></ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="settings-tab-content" id="settings-tab-system">
-                        <div class="settings-list">
-                            <div class="settings-group">
                                 <div class="setting-item">
                                     <div class="info">
                                         <span class="label">Keyboard Shortcuts</span>
@@ -6222,75 +6017,17 @@
                             If Vithi has been useful to you and you're able to, consider making a donation!
                         </p>
 
-                        <div
-                            class="upi-donate-card"
-                            style="
-                                text-align: center;
-                                margin: 2rem auto;
-                                padding: 2rem 1.5rem;
-                                background: var(--card-bg, rgba(255, 255, 255, 0.05));
-                                border-radius: 20px;
-                                max-width: 340px;
-                                border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-                                backdrop-filter: blur(10px);
-                            "
-                        >
-                            <h3
-                                style="
-                                    margin-bottom: 1.25rem;
-                                    font-size: 1.25rem;
-                                    font-weight: 600;
-                                    color: var(--foreground, #ffffff);
-                                "
-                            >
-                                Donate via UPI
-                            </h3>
-                            <div
-                                style="
-                                    background: #ffffff;
-                                    padding: 12px;
-                                    border-radius: 16px;
-                                    display: inline-block;
-                                    margin-bottom: 1.25rem;
-                                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-                                "
-                            >
-                                <img
-                                    src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A%2F%2Fpay%3Fpa%3Dprathxm%40ybl%26pn%3DVithi%26cu%3DINR"
-                                    alt="UPI QR Code"
-                                    style="width: 210px; height: 210px; display: block; border-radius: 8px"
-                                />
+                        <div class="upi-donate-card" style="text-align: center; margin: 2rem auto; padding: 2rem 1.5rem; background: var(--card-bg, rgba(255, 255, 255, 0.05)); border-radius: 20px; max-width: 360px; border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12)); backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                            <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 600; color: var(--foreground, #ffffff);">Donate via UPI</h3>
+                            <p style="font-size: 0.85rem; color: var(--muted-foreground, #999999); margin-bottom: 1.25rem;">Scan with Google Pay, PhonePe, Paytm or BHIM</p>
+                            <div style="background: #ffffff; padding: 14px; border-radius: 18px; display: inline-block; margin-bottom: 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A%2F%2Fpay%3Fpa%3Dprathaxm%40ybl%26pn%3DVithi%26cu%3DINR" alt="UPI QR Code" style="width: 210px; height: 210px; display: block; border-radius: 10px;" />
                             </div>
-                            <p
-                                style="
-                                    font-size: 1.15rem;
-                                    font-weight: 700;
-                                    margin-bottom: 0.75rem;
-                                    letter-spacing: 0.5px;
-                                    color: var(--foreground, #ffffff);
-                                "
-                            >
-                                prathxm@ybl
-                            </p>
-                            <button
-                                id="copy-upi-btn"
-                                onclick="
-                                    navigator.clipboard.writeText('prathxm@ybl');
-                                    const b = document.getElementById('copy-upi-btn');
-                                    b.innerText = 'Copied!';
-                                    setTimeout(() => (b.innerText = 'Copy UPI ID'), 2000);
-                                "
-                                class="btn-secondary"
-                                style="
-                                    padding: 0.6rem 1.25rem;
-                                    font-size: 0.95rem;
-                                    font-weight: 600;
-                                    cursor: pointer;
-                                    border-radius: 10px;
-                                "
-                            >
-                                Copy UPI ID
-                            </button>
+                            <div style="background: rgba(255,255,255,0.06); padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.08);">
+                                <span style="font-size: 0.8rem; color: var(--muted-foreground, #888); display: block; margin-bottom: 2px;">UPI ID</span>
+                                <span style="font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; color: var(--foreground, #ffffff); font-family: monospace;">prathaxm@ybl</span>
+                            </div>
+                            <button id="copy-upi-btn" onclick="navigator.clipboard.writeText('prathaxm@ybl'); const b=document.getElementById('copy-upi-btn'); b.innerText='Copied!'; setTimeout(()=>b.innerText='Copy UPI ID',2000);" class="btn-primary" style="padding: 0.65rem 1.5rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; border-radius: 10px; width: 100%;">Copy UPI ID</button>
                         </div>
                         <div class="donate-crypto-section" id="donate-crypto-section" hidden>
                             <h3 class="donate-crypto-title">Pay with crypto</h3>
@@ -6576,144 +6313,6 @@
                             </a>
                         </div>
                     </div>
-                </div>
-                <div id="page-mobile" class="page">
-                    <table
-                        style="
-                            left: 50%;
-                            margin: 0 0 0 50%;
-                            transform: translate(-50%, 0);
-                            width: 100%;
-                            max-width: 1500px;
-                        "
-                    >
-                        <tr>
-                            <td valign="top">
-                                <div
-                                    class="mobile-download-container"
-                                    style="
-                                        text-align: center;
-                                        max-width: 600px;
-                                        margin: 0 auto;
-                                        padding: var(--space-8) var(--space-4);
-                                    "
-                                >
-                                    <h2 class="section-title" style="margin-bottom: var(--space-4)">
-                                        Monochrome Mobile
-                                    </h2>
-                                    <p style="color: var(--muted-foreground); margin-bottom: var(--space-8)">
-                                        Download the app for your device.
-                                    </p>
-                                    <div
-                                        style="
-                                            display: flex;
-                                            flex-wrap: wrap;
-                                            gap: var(--space-4);
-                                            justify-content: center;
-                                            margin-bottom: var(--space-8);
-                                        "
-                                    >
-                                        <a
-                                            href="https://downloads.samidy.com/android.apk"
-                                            class="btn-primary"
-                                            style="display: inline-flex; align-items: center; gap: 8px"
-                                        >
-                                            <use svg="!lucide/download.svg" size="18" />
-                                            Download for Android
-                                        </a>
-                                        <a
-                                            href="https://downloads.samidy.com/iOS.ipa"
-                                            class="btn-primary"
-                                            style="display: inline-flex; align-items: center; gap: 8px"
-                                        >
-                                            <use svg="!lucide/download.svg" size="18" />
-                                            Download for iOS
-                                        </a>
-                                    </div>
-                                    <p style="color: var(--muted-foreground); margin-bottom: var(--space-3)">
-                                        The iOS app must be sideloaded. If you need help getting started, check out this
-                                        <a
-                                            href="https://fmhy.net/mobile#ios-sideloading"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style="color: var(--primary); text-decoration: underline"
-                                            >iOS sideloading guide</a
-                                        >.
-                                    </p>
-                                    <p style="color: var(--color-warning); margin: 0">
-                                        We don't offer support for sideloading. Please do your own research if you run
-                                        into issues.
-                                    </p>
-                                    <p
-                                        style="
-                                            color: var(--muted-foreground);
-                                            margin-top: var(--space-6);
-                                            margin-bottom: 0;
-                                        "
-                                    >
-                                        Downloaded songs are saved to <b>Downloads/Monochrome</b> on your device.
-                                    </p>
-                                </div>
-                            </td>
-                            <td valign="top">
-                                <div
-                                    class="desktop-download-container"
-                                    style="
-                                        text-align: center;
-                                        max-width: 600px;
-                                        margin: 0 auto;
-                                        padding: var(--space-8) var(--space-4);
-                                    "
-                                >
-                                    <h2 class="section-title" style="margin-bottom: var(--space-4)">
-                                        Monochrome Desktop
-                                    </h2>
-                                    <p style="color: var(--muted-foreground); margin-bottom: var(--space-8)">
-                                        Download the app for your desktop device.
-                                    </p>
-                                    <div
-                                        style="
-                                            display: flex;
-                                            flex-wrap: wrap;
-                                            gap: var(--space-4);
-                                            justify-content: center;
-                                            margin-bottom: var(--space-8);
-                                        "
-                                    >
-                                        <a
-                                            href="https://github.com/monochrome-music/desktop-app/releases"
-                                            class="btn-primary"
-                                            style="display: inline-flex; align-items: center; gap: 8px"
-                                        >
-                                            <use svg="!lucide/download.svg" size="18" />
-                                            Download from Github
-                                        </a>
-                                    </div>
-                                    <p style="color: var(--muted-foreground)">
-                                        If you need any help with the desktop app, please reach out to the developer of
-                                        the application. You can find their contact information on the GitHub page
-                                        linked above or contact them directly on discord in our server's
-                                        <a
-                                            href="https://discord.com/channels/1457628745589456910/1457633716049543208"
-                                            style="color: var(--primary); text-decoration: underline"
-                                            ><i>Help Channel</i></a
-                                        >.
-                                    </p>
-                                    <p
-                                        style="
-                                            color: var(--color-warning);
-                                            margin: 0;
-                                            margin-top: var(--space-6);
-                                            margin-bottom: 0;
-                                        "
-                                    >
-                                        This application is currently in beta and may have bugs or issues. Please report
-                                        any problems you encounter to the developer so they can be addressed.
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
                 </div>
                 <div id="page-reset-password" class="page">
                     <div

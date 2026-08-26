@@ -35,20 +35,14 @@ import {
     pwaUpdateSettings,
     contentBlockingSettings,
     musicProviderSettings,
-    unifiedPlaybackSettings,
-    deezerFallbackSettings,
     gaplessPlaybackSettings,
     analyticsSettings,
     modalSettings,
-    preferDolbyAtmosSettings,
-    nativeOsAtmosSettings,
     binauralDspSettings,
     fullscreenCoverNoRoundSettings,
     fullscreenCoverVanillaTiltSettings,
     fullscreenCoverTiltDistanceSettings,
     fullscreenCoverTiltSpeedSettings,
-    devModeSettings,
-    serverDisruptionSettings,
 } from './storage.js';
 import { audioContextManager, getPresetsForBandCount } from './audio-context.js';
 import { calculateBiquadResponse, interpolate, getNormalizationOffset, runAutoEqAlgorithm } from './autoeq-engine.js';
@@ -84,51 +78,6 @@ export async function initializeSettings(scrobbler, player, api, ui) {
 
     // Initialize account system UI & Settings
     authManager.updateUI?.(authManager.user ?? null);
-
-    // ========================================
-    // Dev Mode
-    // ========================================
-    const devModeToggle = document.getElementById('dev-mode-toggle');
-    const devModeUrlSetting = document.getElementById('dev-mode-url-setting');
-    const devModeUrlInput = document.getElementById('dev-mode-url-input');
-
-    function updateDevModeUI() {
-        if (devModeToggle) devModeToggle.checked = devModeSettings.isEnabled();
-        if (devModeUrlSetting) devModeUrlSetting.style.display = devModeSettings.isEnabled() ? '' : 'none';
-        if (devModeUrlInput) devModeUrlInput.value = devModeSettings.getUrl();
-    }
-
-    updateDevModeUI();
-
-    if (devModeToggle) {
-        devModeToggle.addEventListener('change', (e) => {
-            devModeSettings.setEnabled(e.target.checked);
-            updateDevModeUI();
-        });
-    }
-
-    if (devModeUrlInput) {
-        devModeUrlInput.addEventListener('change', (e) => {
-            devModeSettings.setUrl(e.target.value.trim());
-        });
-    }
-
-    // ========================================
-    // Server Disruption Banner
-    // ========================================
-    const disruptionBanner = document.getElementById('server-disruption-banner');
-    const dismissDisruptionBtn = document.getElementById('dismiss-disruption-btn');
-
-    if (disruptionBanner && !serverDisruptionSettings.isDismissed()) {
-        disruptionBanner.style.display = 'flex';
-    }
-
-    if (dismissDisruptionBtn) {
-        dismissDisruptionBtn.addEventListener('click', () => {
-            serverDisruptionSettings.dismiss();
-            if (disruptionBanner) disruptionBanner.style.display = 'none';
-        });
-    }
 
     // Email Auth UI Logic
     const toggleEmailBtn = document.getElementById('toggle-email-auth-btn');
@@ -845,58 +794,6 @@ export async function initializeSettings(scrobbler, player, api, ui) {
         });
     }
 
-    const unifiedPlaybackToggle = document.getElementById('unified-playback-toggle');
-    if (unifiedPlaybackToggle) {
-        unifiedPlaybackToggle.checked = unifiedPlaybackSettings.isEnabled();
-        unifiedPlaybackToggle.addEventListener('change', (e) => {
-            unifiedPlaybackSettings.setEnabled(e.target.checked);
-            api?.clearUnifiedTurnstileJwt?.();
-            api?.clearCache?.();
-            if (e.target.checked && unifiedPlaybackSettings.getApiToken().trim()) {
-                api?.getUnifiedTurnstileJwt?.().catch(() => null);
-            }
-        });
-    }
-
-    const unifiedApiBaseUrlInput = document.getElementById('unified-playback-api-base-url');
-    if (unifiedApiBaseUrlInput) {
-        unifiedApiBaseUrlInput.value = unifiedPlaybackSettings.getApiBaseUrl();
-        unifiedApiBaseUrlInput.addEventListener('change', (e) => {
-            unifiedPlaybackSettings.setApiBaseUrl(e.target.value.trim());
-            api?.clearUnifiedTurnstileJwt?.();
-            api?.clearCache?.();
-        });
-    }
-
-    const unifiedApiTokenInput = document.getElementById('unified-playback-api-token');
-    if (unifiedApiTokenInput) {
-        unifiedApiTokenInput.value = unifiedPlaybackSettings.getApiToken();
-        unifiedApiTokenInput.addEventListener('change', (e) => {
-            unifiedPlaybackSettings.setApiToken(e.target.value.trim());
-            api?.clearUnifiedTurnstileJwt?.();
-            api?.clearCache?.();
-            if (e.target.value.trim() && unifiedPlaybackSettings.isEnabled()) {
-                api?.getUnifiedTurnstileJwt?.().catch(() => null);
-            }
-        });
-    }
-
-    const deezerFallbackToggle = document.getElementById('deezer-fallback-toggle');
-    if (deezerFallbackToggle) {
-        deezerFallbackToggle.checked = deezerFallbackSettings.isEnabled();
-        deezerFallbackToggle.addEventListener('change', (e) => {
-            deezerFallbackSettings.setEnabled(e.target.checked);
-        });
-    }
-
-    const deezerApiBaseUrlInput = document.getElementById('deezer-fallback-api-base-url');
-    if (deezerApiBaseUrlInput) {
-        deezerApiBaseUrlInput.value = deezerFallbackSettings.getApiBaseUrl();
-        deezerApiBaseUrlInput.addEventListener('change', (e) => {
-            deezerFallbackSettings.setApiBaseUrl(e.target.value.trim());
-        });
-    }
-
     // Streaming Quality setting
     const streamingQualitySetting = document.getElementById('streaming-quality-setting');
     if (streamingQualitySetting) {
@@ -957,22 +854,6 @@ export async function initializeSettings(scrobbler, player, api, ui) {
             player.setQuality(newApiQuality);
             localStorage.setItem('playback-quality', newApiQuality);
             updateStreamingQualityDetails();
-        });
-    }
-
-    const preferDolbyAtmosToggle = document.getElementById('prefer-dolby-atmos-toggle');
-    if (preferDolbyAtmosToggle) {
-        preferDolbyAtmosToggle.checked = preferDolbyAtmosSettings.isEnabled();
-        preferDolbyAtmosToggle.addEventListener('change', (e) => {
-            preferDolbyAtmosSettings.setEnabled(e.target.checked);
-        });
-    }
-
-    const nativeOsAtmosToggle = document.getElementById('native-os-atmos-toggle');
-    if (nativeOsAtmosToggle) {
-        nativeOsAtmosToggle.checked = nativeOsAtmosSettings.isEnabled();
-        nativeOsAtmosToggle.addEventListener('change', (e) => {
-            nativeOsAtmosSettings.setEnabled(e.target.checked);
         });
     }
 

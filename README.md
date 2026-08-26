@@ -1,45 +1,23 @@
- <p align="center">
-  <a href="https://monochrome.tf">
-    <img src="https://github.com/monochrome-music/monochrome/blob/main/public/assets/512.png?raw=true" alt="Monochrome Logo" width="150px">
-  </a>
-</p>
-
-<h1 align="center">Monochrome</h1>
+ <h1 align="center">Vithi</h1>
 
 <p align="center">
-  <strong>An open-source, privacy-respecting, ad-free music app.</strong>
+  <strong>An open-source, privacy-respecting, ad-free music web app powered by JioSaavn API.</strong>
+  <br>
+  <em>(A fork of <a href="https://github.com/monochrome-music/monochrome">Monochrome</a>)</em>
 </p>
 
 <p align="center">
-  <a href="https://monochrome.tf">Website</a> -
-  <a href="https://ko-fi.com/monochrometf">Donate</a> -
   <a href="#features">Features</a> -
   <a href="#usage">Usage</a> -
   <a href="#self-hosting">Self-Hosting</a> -
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/monochrome-music/monochrome/stargazers">
-    <img src="https://img.shields.io/github/stars/monochrome-music/monochrome?style=for-the-badge&color=ffffff&labelColor=000000" alt="GitHub stars">
-  </a>
-  <a href="https://github.com/monochrome-music/monochrome/forks">
-    <img src="https://img.shields.io/github/forks/monochrome-music/monochrome?style=for-the-badge&color=ffffff&labelColor=000000" alt="GitHub forks">
-  </a>
-  <a href="https://github.com/monochrome-music/monochrome/issues">
-    <img src="https://img.shields.io/github/issues/monochrome-music/monochrome?style=for-the-badge&color=ffffff&labelColor=000000" alt="GitHub issues">
-  </a>
-</p>
-
 ---
 
-## What is Monochrome?
+## What is Vithi?
 
-**Monochrome** is an open-source, privacy-respecting, ad-free web music player. It provides a beautiful, minimalist interface for streaming high-quality music without the clutter of traditional streaming platforms.
-
-[![Monochrome UI: NASIR by Nas](https://i.samidy.xyz/NASIR.png)](https://monochrome.tf/album/90502209)
-
-## [![Monochrome UI: Jump Out by Osamason](https://i.samidy.xyz/jumpout.png)](https://monochrome.tf/album/413189044)
+**Vithi** is a feature-rich, open-source web music streaming application powered by the JioSaavn API. It is a fork of [Monochrome](https://github.com/monochrome-music/monochrome), designed to provide a clean, fast, high-quality, ad-free listening experience with unlimited streaming, recommendations, infinite radio, and offline playback.
 
 ## Features
 

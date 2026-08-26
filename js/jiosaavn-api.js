@@ -41,14 +41,8 @@ export class JioSaavnAPI {
     }
 
     getApiUrl(paramsStr) {
-        const fullUrl = `https://www.jiosaavn.com/api.php?_format=json&_marker=0&api_version=4&${paramsStr}`;
-        if (
-            typeof window !== 'undefined' &&
-            (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ) {
-            return `/saavn-api/api.php?_format=json&_marker=0&api_version=4&${paramsStr}`;
-        }
-        return `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`;
+        // /saavn-api/ is handled by Vite proxy in dev and nginx reverse proxy in production
+        return `/saavn-api/api.php?_format=json&_marker=0&api_version=4&${paramsStr}`;
     }
 
     async fetchJioSaavn(paramsStr) {
@@ -332,19 +326,128 @@ export class JioSaavnAPI {
         return track;
     }
 
-    async getTrackMetadata(id) {
-        return this.getTrack(id);
+    async getEditorsPicksMetadata(id) {
+        const idStr = String(id);
+        if (!this._editorsPicksMap) {
+            this._editorsPicksMap = new Map();
+            try {
+                const res = await fetch('./editors-picks.json');
+                if (res.ok) {
+                    const items = await res.json();
+                    if (Array.isArray(items)) {
+                        items.forEach((item) => {
+                            if (item.id) {
+                                this._editorsPicksMap.set(String(item.id), item);
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn('[getEditorsPicksMetadata] Could not fetch editors-picks.json:', e);
+            }
+        }
+        return this._editorsPicksMap.get(idStr);
     }
 
     async getAlbum(id) {
         const cached = await this.cache.get('album', id);
         if (cached) return cached;
 
-        const data = await this.fetchJioSaavn(`__call=content.getAlbumDetails&albumid=${encodeURIComponent(id)}`);
-        if (!data || !data.id) throw new Error('Album not found');
+        let cleanId = String(id).replace(/^saavn-album-/, '').replace(/^saavn-/, '');
+
+        let data = null;
+        try {
+            data = await this.fetchJioSaavn(`__call=content.getAlbumDetails&albumid=${encodeURIComponent(cleanId)}`);
+        } catch (e) {
+            console.warn(`[getAlbum] Initial fetch failed for albumid ${cleanId}:`, e);
+        }
+
+        // Fallback 1: Try fetching via token if cleanId is non-numeric or returned no tracks
+        if (!data || !data.id || !Array.isArray(data.list) || data.list.length === 0) {
+            try {
+                const tokenData = await this.fetchJioSaavn(
+                    `__call=content.getAlbumDetails&token=${encodeURIComponent(cleanId)}&type=album`
+                );
+                if (tokenData && (tokenData.id || tokenData.list?.length)) {
+                    data = tokenData;
+                }
+            } catch (tokenErr) {
+                console.warn(`[getAlbum] Token fetch failed for ${cleanId}:`, tokenErr);
+            }
+        }
+
+        // Fallback 2: If cleanId was created from a track ID fallback (saavn-album-TRACK_ID),
+        // fetch the song details to extract its real album_id or album title
+        if (!data || !data.id || !Array.isArray(data.list) || data.list.length === 0) {
+            try {
+                const trackDetails = await this.fetchJioSaavn(`__call=song.getDetails&pids=${encodeURIComponent(cleanId)}`);
+                const songObj = trackDetails[cleanId] || Object.values(trackDetails)[0];
+                const realAlbumId = songObj?.more_info?.album_id || songObj?.albumid;
+                if (realAlbumId && String(realAlbumId) !== cleanId) {
+                    const realAlbumData = await this.fetchJioSaavn(
+                        `__call=content.getAlbumDetails&albumid=${encodeURIComponent(realAlbumId)}`
+                    );
+                    if (realAlbumData && (realAlbumData.id || realAlbumData.list?.length)) {
+                        data = realAlbumData;
+                    }
+                }
+
+                // If still missing tracks but we have album title from songObj
+                if ((!data || !data.list || data.list.length === 0) && songObj) {
+                    const albumTitle = songObj.more_info?.album || songObj.album;
+                    if (albumTitle) {
+                        const albumSearch = await this.searchAlbums(albumTitle);
+                        if (albumSearch.items && albumSearch.items.length > 0) {
+                            const matched = albumSearch.items[0];
+                            if (matched && matched.id && String(matched.id) !== cleanId) {
+                                const searchedAlbumData = await this.fetchJioSaavn(
+                                    `__call=content.getAlbumDetails&albumid=${encodeURIComponent(matched.id)}`
+                                );
+                                if (searchedAlbumData && searchedAlbumData.id) {
+                                    data = searchedAlbumData;
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (trackErr) {
+                console.warn(`[getAlbum] Track resolution fallback failed for ${cleanId}:`, trackErr);
+            }
+        }
+
+        // Fallback 3: Check if id is an ID from editors-picks.json (Tidal IDs mapped to Title/Artist)
+        if (!data || !data.id || !Array.isArray(data.list) || data.list.length === 0) {
+            try {
+                const pickItem = await this.getEditorsPicksMetadata(cleanId);
+                const title = pickItem?.title;
+                const artist = pickItem?.artist?.name || pickItem?.artist;
+                if (title) {
+                    const query = artist ? `${title} ${artist}` : title;
+                    const searchRes = await this.searchAlbums(query);
+                    if (searchRes.items && searchRes.items.length > 0) {
+                        const matched = searchRes.items[0];
+                        if (matched && matched.id) {
+                            const realAlbumData = await this.fetchJioSaavn(
+                                `__call=content.getAlbumDetails&albumid=${encodeURIComponent(matched.id)}`
+                            );
+                            if (realAlbumData && (realAlbumData.id || realAlbumData.list?.length)) {
+                                data = realAlbumData;
+                            }
+                        }
+                    }
+                }
+            } catch (picksErr) {
+                console.warn(`[getAlbum] Editors picks fallback failed for ${cleanId}:`, picksErr);
+            }
+        }
+
+        if (!data || (!data.id && !data.title && !data.name && !data.list?.length)) {
+            throw new Error('Album not found');
+        }
 
         const album = this.prepareAlbum(data);
-        const tracks = (data.list || []).map((s, idx) => {
+        const rawList = data.list || data.songs || (data.sections ? data.sections.flatMap((s) => s.items || []) : []);
+        const tracks = (rawList || []).map((s, idx) => {
             const prepared = this.prepareTrack(s);
             if (prepared) prepared.trackNumber = idx + 1;
             return new Track(prepared);
@@ -422,8 +525,30 @@ export class JioSaavnAPI {
         return result;
     }
 
-    async getPlaylist() {
-        return { items: [], tracks: [] };
+    async getPlaylist(id) {
+        if (!id) return { items: [], tracks: [] };
+        const cached = await this.cache.get('playlist', id);
+        if (cached) return cached;
+
+        let cleanId = String(id).replace(/^saavn-playlist-/, '').replace(/^saavn-/, '');
+        try {
+            let data = await this.fetchJioSaavn(`__call=playlist.getDetails&listid=${encodeURIComponent(cleanId)}`);
+            if (!data || !data.list) {
+                data = await this.fetchJioSaavn(`__call=playlist.getDetails&token=${encodeURIComponent(cleanId)}&type=playlist`);
+            }
+            const rawList = data?.list || data?.songs || [];
+            const tracks = rawList.map((s, idx) => {
+                const prepared = this.prepareTrack(s);
+                if (prepared) prepared.trackNumber = idx + 1;
+                return new Track(prepared);
+            });
+            const result = { playlist: data, tracks };
+            await this.cache.set('playlist', id, result);
+            return result;
+        } catch (e) {
+            console.warn('[getPlaylist] Failed for ID:', id, e);
+            return { items: [], tracks: [] };
+        }
     }
 
     async getMix() {
@@ -487,30 +612,96 @@ export class JioSaavnAPI {
         }
     }
 
-    async getRecommendedTracksForPlaylist(tracks, limit = 10) {
+    async getRecommendedTracksForPlaylist(tracks, limit = 20, options = {}) {
         if (!tracks || tracks.length === 0) return [];
-        const seedTrack = tracks[0];
-        const recos = await this.getTrackRecommendations(seedTrack.id);
-        return recos.slice(0, limit);
+
+        const knownTrackIds = options.knownTrackIds instanceof Set
+            ? options.knownTrackIds
+            : new Set(options.knownTrackIds || []);
+
+        const collectedTracks = [];
+        const seenIds = new Set(knownTrackIds);
+
+        // Try getting recommendations across multiple seed tracks
+        const seedTracks = Array.isArray(tracks) ? tracks.slice(0, 8) : [tracks];
+
+        for (const seedTrack of seedTracks) {
+            if (collectedTracks.length >= limit) break;
+            const seedId = typeof seedTrack === 'object' ? seedTrack.id : seedTrack;
+            const recos = await this.getTrackRecommendations(seedId, typeof seedTrack === 'object' ? seedTrack : null);
+
+            for (const track of recos) {
+                if (track && track.id && !seenIds.has(track.id)) {
+                    seenIds.add(track.id);
+                    collectedTracks.push(track);
+                    if (collectedTracks.length >= limit) break;
+                }
+            }
+        }
+
+        // If filtering knownTrackIds yielded too few recommendations, relax the filter so radio keeps playing
+        if (collectedTracks.length < 5) {
+            for (const seedTrack of seedTracks) {
+                if (collectedTracks.length >= limit) break;
+                const seedId = typeof seedTrack === 'object' ? seedTrack.id : seedTrack;
+                const recos = await this.getTrackRecommendations(seedId, typeof seedTrack === 'object' ? seedTrack : null);
+
+                for (const track of recos) {
+                    if (track && track.id && !collectedTracks.some((t) => t.id === track.id)) {
+                        collectedTracks.push(track);
+                        if (collectedTracks.length >= limit) break;
+                    }
+                }
+            }
+        }
+
+        return collectedTracks;
     }
 
-    async getTrackRecommendations(id) {
+    async getTrackRecommendations(id, trackObj = null) {
         if (!id) return [];
         const cached = await this.cache.get('track_reco', id);
-        if (cached) return cached;
+        if (cached && cached.length > 0) return cached;
 
+        let recos = [];
         try {
-            const data = await this.fetchJioSaavn(`__call=reco.getreco&pid=${encodeURIComponent(id)}`);
-            const items = data[id] || data.results || (Array.isArray(data) ? data : Object.values(data)[0]) || [];
-            if (!Array.isArray(items)) return [];
-
-            const tracks = items.map((item) => this.prepareTrack(item)).filter(Boolean);
-            await this.cache.set('track_reco', id, tracks);
-            return tracks;
+            const cleanId = String(id).replace(/^saavn-track-/, '');
+            const data = await this.fetchJioSaavn(`__call=reco.getreco&pid=${encodeURIComponent(cleanId)}`);
+            const items = data[cleanId] || data.results || (Array.isArray(data) ? data : Object.values(data)[0]) || [];
+            if (Array.isArray(items) && items.length > 0) {
+                recos = items.map((item) => this.prepareTrack(item)).filter(Boolean);
+            }
         } catch (e) {
             console.error('Failed to get track recommendations:', e);
-            return [];
         }
+
+        // Fallback: If no recommendations from reco.getreco, get top tracks of the track's artist
+        if (recos.length === 0) {
+            try {
+                let artistId = trackObj?.artist?.id || trackObj?.artists?.[0]?.id;
+                let artistName = trackObj?.artist?.name || trackObj?.artists?.[0]?.name;
+
+                if (!artistName && !artistId) {
+                    const track = await this.getTrack(id).catch(() => null);
+                    artistId = track?.artist?.id || track?.artists?.[0]?.id;
+                    artistName = track?.artist?.name || track?.artists?.[0]?.name;
+                }
+
+                if (artistName || artistId) {
+                    const searchRes = await this.searchTracks(artistName || artistId).catch(() => ({ items: [] }));
+                    if (searchRes.items && searchRes.items.length > 0) {
+                        recos = searchRes.items.filter((t) => String(t.id) !== String(id));
+                    }
+                }
+            } catch (fallbackErr) {
+                console.warn('Fallback artist recommendations failed:', fallbackErr);
+            }
+        }
+
+        if (recos.length > 0) {
+            await this.cache.set('track_reco', id, recos);
+        }
+        return recos;
     }
 
     async getVideo() {
