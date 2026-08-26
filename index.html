@@ -6017,17 +6017,104 @@
                             If Vithi has been useful to you and you're able to, consider making a donation!
                         </p>
 
-                        <div class="upi-donate-card" style="text-align: center; margin: 2rem auto; padding: 2rem 1.5rem; background: var(--card-bg, rgba(255, 255, 255, 0.05)); border-radius: 20px; max-width: 360px; border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12)); backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                            <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 600; color: var(--foreground, #ffffff);">Donate via UPI</h3>
-                            <p style="font-size: 0.85rem; color: var(--muted-foreground, #999999); margin-bottom: 1.25rem;">Scan with Google Pay, PhonePe, Paytm or BHIM</p>
-                            <div style="background: #ffffff; padding: 14px; border-radius: 18px; display: inline-block; margin-bottom: 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A%2F%2Fpay%3Fpa%3Dprathaxm%40ybl%26pn%3DVithi%26cu%3DINR" alt="UPI QR Code" style="width: 210px; height: 210px; display: block; border-radius: 10px;" />
+                        <div
+                            class="upi-donate-card"
+                            style="
+                                text-align: center;
+                                margin: 2rem auto;
+                                padding: 2rem 1.5rem;
+                                background: var(--card-bg, rgba(255, 255, 255, 0.05));
+                                border-radius: 20px;
+                                max-width: 360px;
+                                border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+                                backdrop-filter: blur(12px);
+                                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                            "
+                        >
+                            <h3
+                                style="
+                                    margin-bottom: 0.5rem;
+                                    font-size: 1.3rem;
+                                    font-weight: 600;
+                                    color: var(--foreground, #ffffff);
+                                "
+                            >
+                                Donate via UPI
+                            </h3>
+                            <p
+                                style="
+                                    font-size: 0.85rem;
+                                    color: var(--muted-foreground, #999999);
+                                    margin-bottom: 1.25rem;
+                                "
+                            >
+                                Scan with Google Pay, PhonePe, Paytm or BHIM
+                            </p>
+                            <div
+                                style="
+                                    background: #ffffff;
+                                    padding: 14px;
+                                    border-radius: 18px;
+                                    display: inline-block;
+                                    margin-bottom: 1.25rem;
+                                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                                "
+                            >
+                                <img
+                                    src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A%2F%2Fpay%3Fpa%3Dprathaxm%40ybl%26pn%3DVithi%26cu%3DINR"
+                                    alt="UPI QR Code"
+                                    style="width: 210px; height: 210px; display: block; border-radius: 10px"
+                                />
                             </div>
-                            <div style="background: rgba(255,255,255,0.06); padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.08);">
-                                <span style="font-size: 0.8rem; color: var(--muted-foreground, #888); display: block; margin-bottom: 2px;">UPI ID</span>
-                                <span style="font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; color: var(--foreground, #ffffff); font-family: monospace;">prathaxm@ybl</span>
+                            <div
+                                style="
+                                    background: rgba(255, 255, 255, 0.06);
+                                    padding: 0.75rem 1rem;
+                                    border-radius: 12px;
+                                    margin-bottom: 1rem;
+                                    border: 1px solid rgba(255, 255, 255, 0.08);
+                                "
+                            >
+                                <span
+                                    style="
+                                        font-size: 0.8rem;
+                                        color: var(--muted-foreground, #888);
+                                        display: block;
+                                        margin-bottom: 2px;
+                                    "
+                                    >UPI ID</span
+                                >
+                                <span
+                                    style="
+                                        font-size: 1.1rem;
+                                        font-weight: 700;
+                                        letter-spacing: 0.5px;
+                                        color: var(--foreground, #ffffff);
+                                        font-family: monospace;
+                                    "
+                                    >prathaxm@ybl</span
+                                >
                             </div>
-                            <button id="copy-upi-btn" onclick="navigator.clipboard.writeText('prathaxm@ybl'); const b=document.getElementById('copy-upi-btn'); b.innerText='Copied!'; setTimeout(()=>b.innerText='Copy UPI ID',2000);" class="btn-primary" style="padding: 0.65rem 1.5rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; border-radius: 10px; width: 100%;">Copy UPI ID</button>
+                            <button
+                                id="copy-upi-btn"
+                                onclick="
+                                    navigator.clipboard.writeText('prathaxm@ybl');
+                                    const b = document.getElementById('copy-upi-btn');
+                                    b.innerText = 'Copied!';
+                                    setTimeout(() => (b.innerText = 'Copy UPI ID'), 2000);
+                                "
+                                class="btn-primary"
+                                style="
+                                    padding: 0.65rem 1.5rem;
+                                    font-size: 0.95rem;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    border-radius: 10px;
+                                    width: 100%;
+                                "
+                            >
+                                Copy UPI ID
+                            </button>
                         </div>
                         <div class="donate-crypto-section" id="donate-crypto-section" hidden>
                             <h3 class="donate-crypto-title">Pay with crypto</h3>

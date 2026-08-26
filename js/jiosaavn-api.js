@@ -353,7 +353,9 @@ export class JioSaavnAPI {
         const cached = await this.cache.get('album', id);
         if (cached) return cached;
 
-        let cleanId = String(id).replace(/^saavn-album-/, '').replace(/^saavn-/, '');
+        let cleanId = String(id)
+            .replace(/^saavn-album-/, '')
+            .replace(/^saavn-/, '');
 
         let data = null;
         try {
@@ -380,7 +382,9 @@ export class JioSaavnAPI {
         // fetch the song details to extract its real album_id or album title
         if (!data || !data.id || !Array.isArray(data.list) || data.list.length === 0) {
             try {
-                const trackDetails = await this.fetchJioSaavn(`__call=song.getDetails&pids=${encodeURIComponent(cleanId)}`);
+                const trackDetails = await this.fetchJioSaavn(
+                    `__call=song.getDetails&pids=${encodeURIComponent(cleanId)}`
+                );
                 const songObj = trackDetails[cleanId] || Object.values(trackDetails)[0];
                 const realAlbumId = songObj?.more_info?.album_id || songObj?.albumid;
                 if (realAlbumId && String(realAlbumId) !== cleanId) {
@@ -530,11 +534,15 @@ export class JioSaavnAPI {
         const cached = await this.cache.get('playlist', id);
         if (cached) return cached;
 
-        let cleanId = String(id).replace(/^saavn-playlist-/, '').replace(/^saavn-/, '');
+        let cleanId = String(id)
+            .replace(/^saavn-playlist-/, '')
+            .replace(/^saavn-/, '');
         try {
             let data = await this.fetchJioSaavn(`__call=playlist.getDetails&listid=${encodeURIComponent(cleanId)}`);
             if (!data || !data.list) {
-                data = await this.fetchJioSaavn(`__call=playlist.getDetails&token=${encodeURIComponent(cleanId)}&type=playlist`);
+                data = await this.fetchJioSaavn(
+                    `__call=playlist.getDetails&token=${encodeURIComponent(cleanId)}&type=playlist`
+                );
             }
             const rawList = data?.list || data?.songs || [];
             const tracks = rawList.map((s, idx) => {
@@ -615,9 +623,8 @@ export class JioSaavnAPI {
     async getRecommendedTracksForPlaylist(tracks, limit = 20, options = {}) {
         if (!tracks || tracks.length === 0) return [];
 
-        const knownTrackIds = options.knownTrackIds instanceof Set
-            ? options.knownTrackIds
-            : new Set(options.knownTrackIds || []);
+        const knownTrackIds =
+            options.knownTrackIds instanceof Set ? options.knownTrackIds : new Set(options.knownTrackIds || []);
 
         const collectedTracks = [];
         const seenIds = new Set(knownTrackIds);
@@ -644,7 +651,10 @@ export class JioSaavnAPI {
             for (const seedTrack of seedTracks) {
                 if (collectedTracks.length >= limit) break;
                 const seedId = typeof seedTrack === 'object' ? seedTrack.id : seedTrack;
-                const recos = await this.getTrackRecommendations(seedId, typeof seedTrack === 'object' ? seedTrack : null);
+                const recos = await this.getTrackRecommendations(
+                    seedId,
+                    typeof seedTrack === 'object' ? seedTrack : null
+                );
 
                 for (const track of recos) {
                     if (track && track.id && !collectedTracks.some((t) => t.id === track.id)) {

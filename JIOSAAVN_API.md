@@ -6,23 +6,23 @@ This document outlines all JioSaavn API endpoints, media URL decryption algorith
 
 ## 1. Overview & Base Configuration
 
-JioSaavn operates a public endpoint (`api.php`) that returns JSON metadata. 
+JioSaavn operates a public endpoint (`api.php`) that returns JSON metadata.
 
 - **Base Endpoint**: `https://www.jiosaavn.com/api.php`
 - **Default Query Parameters**:
-  - `_format`: `json`
-  - `_marker`: `0`
-  - `api_version`: `4`
+    - `_format`: `json`
+    - `_marker`: `0`
+    - `api_version`: `4`
 
 ### Proxy & CORS Architecture
 
 To bypass browser CORS policies and support regional streaming:
 
 1. **Local Development Proxy (`vite.config.ts`)**:
-   - `/saavn-api/*` -> Proxies to `https://www.jiosaavn.com/*`
-   - `/saavn-audio/*` -> Proxies to `https://aac.saavncdn.com/*` (Supports HTTP `Range` headers for seeking)
+    - `/saavn-api/*` -> Proxies to `https://www.jiosaavn.com/*`
+    - `/saavn-audio/*` -> Proxies to `https://aac.saavncdn.com/*` (Supports HTTP `Range` headers for seeking)
 2. **Production Proxy Fallback (`js/jiosaavn-api.js`)**:
-   - Requests are routed through `https://api.allorigins.win/raw?url=...` when running on remote domains without a custom server proxy.
+    - Requests are routed through `https://api.allorigins.win/raw?url=...` when running on remote domains without a custom server proxy.
 
 ---
 
@@ -31,12 +31,14 @@ To bypass browser CORS policies and support regional streaming:
 JioSaavn returns an `encrypted_media_url` in track metadata. Vithi decrypts this string into direct MP4 AAC stream URLs.
 
 ### Decryption Details
+
 - **Cipher**: `DES-ECB`
 - **Secret Key**: `38346591`
 - **IV**: `00000000`
 - **Input**: Base64 encoded string from `more_info.encrypted_media_url`
 
 ### Code Example (`decryptSaavnMediaUrl`)
+
 ```javascript
 import forge from 'node-forge';
 
@@ -66,18 +68,21 @@ export function decryptSaavnMediaUrl(encryptedMediaUrl) {
 ### 3.1 Search Endpoints
 
 #### Search Tracks
+
 - **Call**: `__call=search.getResults`
 - **Parameters**: `q={query}&p={page}&n={limit}`
 - **Example**: `__call=search.getResults&q=Arijit+Singh&p=1&n=30`
 - **Response**: `{ results: [...tracks], total: number }`
 
 #### Search Albums
+
 - **Call**: `__call=search.getAlbumResults`
 - **Parameters**: `q={query}&p={page}&n={limit}`
 - **Example**: `__call=search.getAlbumResults&q=Rockstar&p=1&n=30`
 - **Response**: `{ results: [...albums], total: number }`
 
 #### Search Artists
+
 - **Call**: `__call=search.getArtistResults`
 - **Parameters**: `q={query}&p={page}&n={limit}`
 - **Example**: `__call=search.getArtistResults&q=Pritam&p=1&n=15`
@@ -88,12 +93,14 @@ export function decryptSaavnMediaUrl(encryptedMediaUrl) {
 ### 3.2 Detail Endpoints
 
 #### Track Details
+
 - **Call**: `__call=song.getDetails`
 - **Parameters**: `pids={track_id}`
 - **Example**: `__call=song.getDetails&pids=oG_0_3K1`
 - **Response**: Map keyed by track ID containing full metadata, `encrypted_media_url`, artists, album info, and duration.
 
 #### Album Details
+
 - **Call**: `__call=content.getAlbumDetails`
 - **Parameters**: `albumid={album_id}`
 - **Fallback (Token)**: `token={album_token}&type=album`
@@ -101,6 +108,7 @@ export function decryptSaavnMediaUrl(encryptedMediaUrl) {
 - **Response**: Album object containing metadata and `list` array of tracks.
 
 #### Playlist Details
+
 - **Call**: `__call=playlist.getDetails`
 - **Parameters**: `listid={playlist_id}`
 - **Fallback (Token)**: `token={playlist_token}&type=playlist`
@@ -108,6 +116,7 @@ export function decryptSaavnMediaUrl(encryptedMediaUrl) {
 - **Response**: Playlist object containing metadata and `list` array of tracks.
 
 #### Artist Page Details
+
 - **Call**: `__call=artist.getArtistPageDetails`
 - **Parameters**: `artistId={artist_id}`
 - **Example**: `__call=artist.getArtistPageDetails&artistId=456269`
@@ -118,12 +127,14 @@ export function decryptSaavnMediaUrl(encryptedMediaUrl) {
 ### 3.3 Recommendations & Radio Endpoints
 
 #### Track Recommendations
+
 - **Call**: `__call=reco.getreco`
 - **Parameters**: `pid={track_id}`
 - **Example**: `__call=reco.getreco&pid=oG_0_3K1`
 - **Response**: Array or object containing recommended tracks based on the seed track.
 
 #### Album Recommendations
+
 - **Call**: `__call=reco.getAlbumReco`
 - **Parameters**: `albumid={album_id}`
 - **Example**: `__call=reco.getAlbumReco&albumid=73778144`
@@ -134,6 +145,7 @@ export function decryptSaavnMediaUrl(encryptedMediaUrl) {
 ### 3.4 Lyrics Endpoint
 
 #### Get Track Lyrics
+
 - **Call**: `__call=lyrics.getLyrics`
 - **Parameters**: `lyrics_id={track_id}`
 - **Example**: `__call=lyrics.getLyrics&lyrics_id=oG_0_3K1`
@@ -147,10 +159,10 @@ For HTML5 `<audio>` element seeking/scrubbing to function correctly without rest
 
 1. **Request Headers**: Forward `Range` header (`req.headers.range`) from the browser to `https://aac.saavncdn.com`.
 2. **Response Headers Required**:
-   - `Accept-Ranges: bytes`
-   - `Content-Range: bytes START-END/TOTAL`
-   - `Content-Length: BYTES`
-   - Status Code `206 Partial Content` (when Range header is present).
+    - `Accept-Ranges: bytes`
+    - `Content-Range: bytes START-END/TOTAL`
+    - `Content-Length: BYTES`
+    - Status Code `206 Partial Content` (when Range header is present).
 
 ---
 
